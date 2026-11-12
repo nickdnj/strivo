@@ -67,10 +67,10 @@ Strivo can't stop the streaming services from seeing what you watch in their own
 |---|---|
 | 📺 **Watching** | Your nighttime queue: every series you're in the middle of, newest episodes first, across all your apps. Shows drop off when you stop watching them. |
 | ▶️ **Play on TV** | Tap a show on your phone, pick a TV, and it opens in the right app. |
-| ✨ **What to Watch** | Movie, series and documentary picks based on what you actually watched, filtered to the services you pay for. Tell it *why* you passed ("seen it", "too dark", "not for kids") and it learns. |
+| ✨ **Discover** | Movie, series and documentary picks based on what you actually watched, filtered to the services you pay for. Set everyday filters (minimum rating, how many people rated it, years, genres to skip, original language, and an exception for the truly great ones), or try different ones just for now. Tell it *why* you passed ("seen it", "too dark", "not for kids") and it learns. |
 | 📰 **Daily** | Morning shows, news, late night and game shows, kept separate so they don't crowd your queue. |
 | 🏟️ **Sports** | Every live game across every service, in one place: NFL, college football, NBA, MLB, NHL, golf, soccer and more. Filter by league or team, see which of *your* services carries each game, and open it on your TV. Scores stay hidden until you want them. |
-| 🔖 **Saved** | Your wish list, with trailers, reviews and where it's streaming. |
+| 🔖 **To Watch** | Your list of what you mean to watch someday, kept apart from Discover, with trailers, reviews, where it's streaming and Play on TV. |
 | 🕰️ **History & Stats** | Everything you've watched, on which TV, and when. |
 | 🎞️ **Posters view** | A full-screen, swipeable poster feed for couch browsing, or a classic list. Your choice, per screen. |
 | 🔒 **Private by design** | Runs on a computer in your home. No account, no Strivo cloud, no ads, no data sold. |

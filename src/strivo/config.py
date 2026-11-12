@@ -75,7 +75,7 @@ DEFAULT_CONFIG = {
     "notify_url": "",             # optional: POST JSON here for wishlist alerts (e.g. an ntfy or Home Assistant webhook)
     "poll_seconds": 10,           # how often polled adapters (Android, Roku, Jellyfin, Plex) are asked what's playing
     "rules": DEFAULT_RULES,
-    "discover": {},               # per-category overrides of DISC_DEFAULT (on, min_rating, years)
+    "discover": {},               # per-category What to Watch filters over DISC_DEFAULT (see strivo.filters)
     "taste": {},                  # optional overrides for picks (see strivo.picks.DEFAULT_TASTE)
     "update_checks": True,        # once a day, ask GitHub for compatibility fixes and new releases
     "rules_updates": "auto",      # auto: install verified rules fixes · ask: offer them · off: ignore
@@ -166,11 +166,18 @@ class DataDir:
         return v or ""
 
 
+FILTER_DEFAULT = dict(min_votes=100, skip_genres=[], langs="any", great=0.0, sort="fit")
+VOTES_DEFAULT = {"movies": 300, "series": 150, "docs": 50, "reality": 50, "kids": 100, "standup": 30, "anim": 100}
+
+
 def disc_cfg(c: dict) -> dict:
+    """Each category's saved filters: DISC_DEFAULT, then what the household chose (see strivo.filters)."""
+    from .filters import KEYS
     user = c.get("discover") or {}
     out = {}
     for k, d in DISC_DEFAULT.items():
         e = copy.deepcopy(d)
-        e.update({kk: vv for kk, vv in (user.get(k) or {}).items() if kk in ("on", "min_rating", "years")})
+        e.update(copy.deepcopy(FILTER_DEFAULT), min_votes=VOTES_DEFAULT.get(k, 100))
+        e.update({kk: vv for kk, vv in (user.get(k) or {}).items() if kk == "on" or kk in KEYS})
         out[k] = e
     return out

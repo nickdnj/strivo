@@ -14,7 +14,7 @@ import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib import resources
 
-from . import __version__, diagnose, picks, report
+from . import __version__, diagnose, filters, picks, report
 from . import rules as rules_mod
 from .health import HealthTracker
 from .updates import UpdateChecker
@@ -22,7 +22,7 @@ from .adapters.base import AdapterError
 from .adapters.jellyfin import WEBHOOK_TEMPLATE
 from . import apps
 from .collector import Collector, EventLog, Runtime
-from .config import DISC_DEFAULT, DataDir
+from .config import DISC_DEFAULT, DataDir, disc_cfg
 from .core import REASONS, Core
 from .devices import DeviceManager
 from .sports import Sports
@@ -104,6 +104,14 @@ class App:
                                  "Strivo will look for a fix and tell you when it's working again.")
             elif e["to"] == "recovered":
                 self.core.notify(f"Strivo: {e['app']} is tracking again", "The fix worked.")
+
+    def custom_build(self, cat, f):
+        """A one-off What to Watch list with filters `f` (the saved defaults stay as they are)."""
+        try:
+            picks.build_one(self.core, cat, f, custom=True)
+        except Exception:  # noqa: BLE001
+            log.exception("custom %s list failed", cat)
+            self.core.data.write(picks.custom_file(cat), dict(built=time.time(), items=[], filters=f, failed=True))
 
     def doctor(self) -> dict:
         devs = self.collector.devices()
@@ -277,6 +285,12 @@ def make_handler(app: App):
                         and body.get("type") in ("tv", "movie"):
                     core.set_dismissed("disc:%s:%d" % (body["type"], int(body["id"])), p.endswith("dismiss"))
                     return self.ok()
+                if p == "/api/discover/custom" and body.get("cat") in DISC_DEFAULT:
+                    cat = body["cat"]
+                    f = filters.clean(body.get("filters") or {}, disc_cfg(core.config())[cat])
+                    core.data.write(picks.custom_file(cat), dict(built=0, items=[], filters=f, pending=True))
+                    threading.Thread(target=app.custom_build, args=(cat, f), daemon=True).start()
+                    return self.ok(dict(filters=f))
                 if p == "/api/discover/later" and body.get("id") and body.get("type") in ("tv", "movie"):
                     core.set_later("%s:%d" % (body["type"], int(body["id"])), body.get("on", True))
                     return self.ok()
@@ -409,15 +423,14 @@ def make_handler(app: App):
                     return self.ok(app.sports.games(lg or None, int(q1("days", "7") or 7)))
                 if p == "/api/discover":
                     cat = q1("cat")
-                    if cat == "series":
-                        return self.ok(picks.shows(core))
-                    if cat == "movies":
-                        return self.ok(picks.suggestions(core))
                     if cat not in DISC_DEFAULT:
                         return self.send(404, {"error": "unknown"})
-                    return self.ok(picks.disc_list(core, cat))
+                    return self.ok(picks.listing(core, cat, custom=q1("custom") == "1"))
                 if p == "/api/discover/refresh":
-                    threading.Thread(target=picks.build_all, args=(core, q1("cat") or None), daemon=True).start()
+                    cat = q1("cat") or None
+                    if cat and cat not in DISC_DEFAULT:
+                        return self.send(404, {"error": "unknown"})
+                    threading.Thread(target=picks.build_all, args=(core, cat, q1("fresh") == "1"), daemon=True).start()
                     return self.ok()
                 if p == "/api/shows":
                     return self.ok(picks.shows(core))

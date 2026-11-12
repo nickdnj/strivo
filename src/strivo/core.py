@@ -14,7 +14,7 @@ import time
 import urllib.parse
 import urllib.request
 
-from . import history
+from . import filters, history
 from . import rules as rules_mod
 from .apps import prov_map, streaming
 from .collector import EventLog
@@ -502,6 +502,7 @@ class Core:
         r = c["rules"]
         return dict(my_services=c.get("services") or [], all_services=sorted(set(streaming()) | set(c.get("services") or [])),
                     default_tv=c.get("default_tv", ""), discover=disc_cfg(c), country=c.get("country", "US"),
+                    genres=filters.GENRES, my_lang=filters.my_lang(c),
                     notify_url=c.get("notify_url", ""), tmdb_key_set=self.tmdb.configured,
                     rules_updates=c.get("rules_updates", "auto"), update_checks=c.get("update_checks", True),
                     **{k: r[k] for k in SET_RULES})
@@ -534,9 +535,7 @@ class Core:
                     e = d.setdefault(cat, {})
                     if "on" in v:
                         e["on"] = bool(v["on"])
-                    if "min_rating" in v:
-                        e["min_rating"] = max(5.0, min(9.0, float(v["min_rating"])))
-                    if "years" in v:
-                        e["years"] = max(0, min(50, int(v["years"])))
+                    base = disc_cfg(c)[cat]
+                    e.update({k: val for k, val in filters.clean(v, base).items() if k in v})
         self.data.update_config(fn)
         return self.settings_view()

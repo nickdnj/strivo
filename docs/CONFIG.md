@@ -20,7 +20,7 @@ Lives in the data folder. Edit it with Strivo stopped. Keys you might want:
 ```jsonc
 {
   "poll_seconds": 10,            // how often polled boxes (Android, Roku, Plex, Jellyfin) are asked
-  "notify_url": "",              // also in Settings: where wishlist and health alerts are POSTed
+  "notify_url": "",              // also in Settings: where To Watch and health alerts are POSTed
   "update_checks": true,         // daily anonymous check of GitHub releases for fixes
   "rules_updates": "auto",       // auto | ask | off (also in Settings › Fixes)
   "diagnosis": {"tier": 1},      // see SELF-HEALING.md (tiers 2 and 3 aren't built yet)
@@ -31,6 +31,15 @@ Lives in the data folder. Edit it with Strivo stopped. Keys you might want:
     "late_night": ["…"],         // title words that mean late night / talk
     "news_channels": ["…"],      // channels whose shows count as news (kept 2 days)
     "news_titles": ["…"]
+  },
+  // Discover filters, per category (movies, series, docs, reality, kids, standup, anim). Set them in the app with
+  // Discover › Filters › "Save as my everyday filters"; the daily builds use them.
+  "discover": {
+    "movies": {"on": true, "min_rating": 8.5, "min_votes": 1000, "years": 0,
+               "skip_genres": ["Animation"],   // names from Settings (TMDB movie genre names)
+               "langs": "mine",                // "any", or "mine" = original language matches "language" above
+               "great": 8.8,                   // rated this high, a pick gets past skip_genres and langs (0 = off)
+               "sort": "rating"}               // "fit" (best for you), "rating" or "new"
   },
   // Optional: describe your household's taste for movie picks
   "taste": {

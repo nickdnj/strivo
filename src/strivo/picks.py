@@ -9,6 +9,7 @@ from __future__ import annotations
 import time
 from collections import defaultdict
 
+from . import filters as F
 from .config import disc_cfg
 from .history import nm_key
 from .tmdb import IMG
@@ -75,15 +76,16 @@ def _all_seen(core):
     return core.seen_names()
 
 
-def suggest_build(core):
+def suggest_build(core, f=None, fname="suggestions.json"):
     c = core.config()
     mine = core.services()
     d = core.build()
     taste = dict(DEFAULT_TASTE)
     taste.update(c.get("taste") or {})
-    dc = disc_cfg(c)["movies"]
-    years, min_rating, min_votes = dc["years"], dc["min_rating"], c.get("suggest_min_votes", 300)
-    since = time.strftime("%Y-%m-%d", time.localtime(time.time() - years * 365.25 * 86400)) if years else "1900-01-01"
+    f = f or disc_cfg(c)["movies"]
+    lang = F.my_lang(c)
+    min_rating, min_votes = f["min_rating"], f["min_votes"]
+    since = F.since(f) or "1900-01-01"
     watched = {nm_key(m["title"]) for m in d["movies"]}
     skip = {(w["id"], w["type"]) for w in core.wishlist()}
     dm = core.dismissed()
@@ -121,23 +123,28 @@ def suggest_build(core):
         gids = x.get("genre_ids") or []
         if story and gid.get("Action") in gids and not (set(gids) & story):
             return
-        r = cands.setdefault(x["id"], dict(id=x["id"], type="movie", title=x["title"],
-                                           year=(x.get("release_date") or "")[:4],
+        pre = dict(rating=x.get("vote_average") or 0, votes=x.get("vote_count") or 0,
+                   year=(x.get("release_date") or "")[:4], genres=[gname[g] for g in gids if g in gname],
+                   lang=x.get("original_language") or "")
+        if not F.passes(pre, f, lang):
+            return
+        r = cands.setdefault(x["id"], dict(id=x["id"], type="movie", title=x["title"], year=pre["year"],
                                            poster=IMG + "w185" + x["poster_path"], score=0, why=[],
-                                           votes=x.get("vote_count") or 0))
+                                           votes=pre["votes"], lang=pre["lang"], rating=round(pre["rating"], 1)))
         r["score"] += weight * mult(gids) * (1 + max(0, x["vote_average"] - min_rating) / 2)
         if why not in r["why"]:
             r["why"].append(why)
 
     pids = "|".join(str(i) for i in provider_ids(core, mine))
     if not pids:
-        core.data.write("suggestions.json", dict(built=time.time(), items=[], reason="no services"))
+        core.data.write(fname, dict(built=time.time(), items=[], reason="no services", filters=f))
         return []
-    disc = {"watch_region": core.country(), "with_watch_providers": pids, "with_watch_monetization_types": "flatrate",
-            "sort_by": "popularity.desc", "primary_release_date.gte": since, "vote_count.gte": min_votes,
-            "vote_average.gte": min_rating}
+    disc = dict({"watch_region": core.country(), "with_watch_providers": pids,
+                 "with_watch_monetization_types": "flatrate", "sort_by": "popularity.desc"},
+                **F.tmdb_params(core, "movie", f, lang))
+    _best(core, "movie", disc, f, lang, lambda x, w, why: add(x, w, why))
     for reason, genres, kws, *opt in taste.get("searches", []):
-        floor = float(opt[0]) if opt and isinstance(opt[0], (int, float)) else min_rating
+        floor = max(min_rating, float(opt[0]) if opt and isinstance(opt[0], (int, float)) else min_rating)
         p = dict(disc, **{"vote_average.gte": floor})
         if genres:
             p["with_genres"] = ",".join(str(gid[g]) for g in genres.split(",") if g in gid)
@@ -203,29 +210,36 @@ def suggest_build(core):
         on = sorted(n for n, k in wh.get("providers", {}).items() if k == "flatrate" and n in mine)
         if not on:
             continue
-        out.append(dict(r, providers=on, overview=wh.get("overview", "")[:2000], genres=wh.get("genres", []),
-                        rating=wh.get("rating"), runtime=wh.get("runtime"), score=round(r["score"], 2), why=r["why"][:3]))
-        if len(out) >= 30:
+        item = dict(r, providers=on, overview=wh.get("overview", "")[:2000], genres=wh.get("genres", []),
+                    rating=wh.get("rating") or r["rating"], runtime=wh.get("runtime"), score=round(r["score"], 2), why=r["why"][:3])
+        if not F.passes(item, f, lang):
+            continue
+        out.append(item)
+        if len(out) >= 40:
             break
-    core.data.write("suggestions.json", dict(built=time.time(), items=out))
+    core.data.write(fname, dict(built=time.time(), items=out, filters=f))
     return out
 
 
-def suggestions(core):
-    c = core.data.read("suggestions.json", {"built": 0, "items": []})
-    dm = core.dismissed()
+def suggestions(core, fname="suggestions.json", f=None):
+    c = core.data.read(fname, {"built": 0, "items": []}) or {"built": 0, "items": []}
+    f, lang = f or disc_cfg(core.config())["movies"], F.my_lang(core.config())
+    dm, lt, now = core.dismissed(), core.later(), time.time()
     skip = {(w["id"], w["type"]) for w in core.wishlist()}
-    items = [i for i in c["items"] if (i["id"], "movie") not in skip and ("suggest:%d" % i["id"]) not in dm]
+    items = [dict(i, later=bool(lt.get("movie:%d" % i["id"], 0) > now - 30 * 86400)) for i in c["items"]
+             if (i["id"], "movie") not in skip and ("suggest:%d" % i["id"]) not in dm and F.passes(i, f, lang)]
     gone = [dict(i, at=dm["suggest:%d" % i["id"]]) for i in c["items"] if ("suggest:%d" % i["id"]) in dm]
-    return dict(built=c["built"], items=items, dismissed=gone)
+    return dict(built=c["built"], items=F.order(items, f), dismissed=gone, filters=f, pending=c.get("pending", False))
 
 
-def shows_build(core):
+def shows_build(core, f=None, fname="show_suggestions.json", fresh=False):
     c = core.config()
     mine = core.services()
     d = core.build()
-    dc = disc_cfg(c)["series"]
-    min_rating, min_votes = dc["min_rating"], c.get("show_min_votes", 150)
+    f = f or disc_cfg(c)["series"]
+    lang = F.my_lang(c)
+    min_rating, min_votes = f["min_rating"], f["min_votes"]
+    tvg = {}
     allseen = _all_seen(core) | {nm_key(s["series"]) for s in d["series"]} | {nm_key(s["series"]) for s in d["daily"]}
     skip = {w["id"] for w in core.wishlist() if w["type"] == "tv"} | {q["id"] for q in core.queue()}
     dm = core.dismissed()
@@ -239,22 +253,30 @@ def shows_build(core):
             return
         if set(x.get("genre_ids") or []) & TV_SKIP:
             return
-        r = cands.setdefault(x["id"], dict(id=x["id"], type="tv", title=x["name"],
-                                           year=(x.get("first_air_date") or "")[:4],
+        if not tvg:
+            tvg.update({g["id"]: g["name"] for g in core.tmdb.get("/genre/tv/list").get("genres", [])} or {0: ""})
+        pre = dict(rating=x.get("vote_average") or 0, votes=x.get("vote_count") or 0,
+                   year=(x.get("first_air_date") or "")[:4],
+                   genres=[tvg[g] for g in x.get("genre_ids") or [] if g in tvg], lang=x.get("original_language") or "")
+        if not F.passes(pre, f, lang):
+            return
+        r = cands.setdefault(x["id"], dict(id=x["id"], type="tv", title=x["name"], year=pre["year"],
                                            poster=IMG + "w185" + x["poster_path"], score=0, why=[],
-                                           votes=x.get("vote_count") or 0))
+                                           votes=pre["votes"], lang=pre["lang"], rating=round(pre["rating"], 1)))
         r["score"] += weight * (1 + max(0, x["vote_average"] - min_rating) / 2)
         if why not in r["why"]:
             r["why"].append(why)
 
     pids = "|".join(str(i) for i in provider_ids(core, mine, "tv"))
     if not pids:
-        core.data.write("show_suggestions.json", dict(built=time.time(), items=[], reason="no services"))
+        core.data.write(fname, dict(built=time.time(), items=[], reason="no services", filters=f))
         return []
-    disc = {"watch_region": core.country(), "with_watch_providers": pids, "with_watch_monetization_types": "flatrate",
-            "sort_by": "popularity.desc", "vote_count.gte": min_votes}
+    disc = dict({"watch_region": core.country(), "with_watch_providers": pids,
+                 "with_watch_monetization_types": "flatrate", "sort_by": "popularity.desc"},
+                **F.tmdb_params(core, "tv", f, lang))
+    _best(core, "tv", disc, f, lang, lambda x, w, why: add(x, w, why))
     for reason, genres, kws, *opt in (c.get("tv_taste") or DEFAULT_TV_TASTE):
-        floor = float(opt[0]) if opt and isinstance(opt[0], (int, float)) else min_rating
+        floor = max(min_rating, float(opt[0]) if opt and isinstance(opt[0], (int, float)) else min_rating)
         p = dict(disc, **{"vote_average.gte": floor})
         if genres:
             p["with_genres"] = genres
@@ -284,7 +306,7 @@ def shows_build(core):
                 add(x, w * 2, "you watch " + name)
         except Exception:
             pass
-    old = core.data.read("show_suggestions.json", {}).get("items", []) if core.data.read("show_suggestions.json", {}) else []
+    old = [] if fresh else ((core.data.read(fname, {}) or {}).get("items", []))
     have = {i["id"] for i in old}
     out = [i for i in old if ("showsug:%d" % i["id"]) not in dm and i["id"] not in skip and nm_key(i["title"]) not in allseen]
     for r in sorted(cands.values(), key=lambda r: -r["score"])[:100]:
@@ -299,44 +321,48 @@ def shows_build(core):
         on = sorted(n for n, k in wh.get("providers", {}).items() if k == "flatrate" and n in mine)
         if not on:
             continue
-        out.append(dict(r, providers=on, overview=wh.get("overview", "")[:2000], genres=wh.get("genres", []),
-                        rating=wh.get("rating"), seasons=wh.get("seasons"), episodes=wh.get("episodes"),
-                        status=wh.get("status", ""), score=round(r["score"], 2), why=r["why"][:3], added=time.time()))
-    core.data.write("show_suggestions.json", dict(built=time.time(), items=out))
+        item = dict(r, providers=on, overview=wh.get("overview", "")[:2000], genres=wh.get("genres", []),
+                    rating=wh.get("rating") or r["rating"], seasons=wh.get("seasons"), episodes=wh.get("episodes"),
+                    status=wh.get("status", ""), score=round(r["score"], 2), why=r["why"][:3], added=time.time())
+        if F.passes(item, f, lang):
+            out.append(item)
+    core.data.write(fname, dict(built=time.time(), items=out, filters=f))
     return out
 
 
-def shows(core):
-    c = core.data.read("show_suggestions.json", {"built": 0, "items": []})
+def shows(core, fname="show_suggestions.json", f=None):
+    c = core.data.read(fname, {"built": 0, "items": []}) or {"built": 0, "items": []}
+    f, lang = f or disc_cfg(core.config())["series"], F.my_lang(core.config())
     dm, lt, now = core.dismissed(), core.later(), time.time()
     skip = {w["id"] for w in core.wishlist() if w["type"] == "tv"} | {q["id"] for q in core.queue()}
     items = [dict(i, later=bool(lt.get(str(i["id"]), 0) > now - 30 * 86400)) for i in c["items"]
-             if i["id"] not in skip and ("showsug:%d" % i["id"]) not in dm]
-    items.sort(key=lambda i: (i["later"], -i.get("score", 0)))
+             if i["id"] not in skip and ("showsug:%d" % i["id"]) not in dm and F.passes(i, f, lang)]
+    items.sort(key=lambda i: -i.get("score", 0))
     gone = [dict(i, at=dm["showsug:%d" % i["id"]]) for i in c["items"] if ("showsug:%d" % i["id"]) in dm]
-    return dict(built=c["built"], items=items, dismissed=gone)
+    return dict(built=c["built"], items=F.order(items, f), dismissed=gone, filters=f, pending=c.get("pending", False))
 
 
 def disc_file(cat):
     return "disc_%s.json" % cat
 
 
-def disc_build(core, cat):
+def disc_build(core, cat, f=None, fname=None, fresh=False):
     c = core.config()
     dc = disc_cfg(c)[cat]
+    f = f or dc
+    fname = fname or disc_file(cat)
+    lang = F.my_lang(c)
     mine = core.services()
     allseen = _all_seen(core)
     skip = {(w["id"], w["type"]) for w in core.wishlist()} | {(q["id"], "tv") for q in core.queue()}
     dm = core.dismissed()
     cands = {}
-    since = time.strftime("%Y-%m-%d", time.localtime(time.time() - dc["years"] * 365.25 * 86400)) if dc["years"] else ""
     for typ, extra in dc["spec"].items():
         pids = "|".join(str(i) for i in provider_ids(core, mine, typ))
         if not pids:
             continue
-        p = {"watch_region": core.country(), "with_watch_providers": pids, "with_watch_monetization_types": "flatrate",
-             "sort_by": "popularity.desc", "vote_count.gte": 50 if typ == "tv" else 100,
-             "vote_average.gte": dc["min_rating"]}
+        p = dict({"watch_region": core.country(), "with_watch_providers": pids,
+                  "with_watch_monetization_types": "flatrate"}, **F.tmdb_params(core, typ, f, lang))
         for k, v in extra.items():
             if k == "keyword":
                 try:
@@ -345,11 +371,14 @@ def disc_build(core, cat):
                     continue
             else:
                 p[k] = v
-        if since:
-            p["first_air_date.gte" if typ == "tv" else "primary_release_date.gte"] = since
-        for page in (1, 2, 3):
+        if "with_genres" in p and "without_genres" in p:     # skipping the category's own genre would empty it
+            keep = set(p["with_genres"].split(","))
+            p["without_genres"] = ",".join(g for g in p["without_genres"].split(",") if g not in keep)
+            if not p["without_genres"]:
+                del p["without_genres"]
+        for sort, page in [("popularity.desc", n) for n in (1, 2, 3)] + [("vote_average.desc", n) for n in (1, 2)]:
             try:
-                res = core.tmdb.get("/discover/" + typ, page=page, **p).get("results", [])
+                res = core.tmdb.get("/discover/" + typ, page=page, sort_by=sort, **p).get("results", [])
             except Exception:
                 break
             for i, x in enumerate(res):
@@ -360,9 +389,10 @@ def disc_build(core, cat):
                     id=x["id"], type=typ, cat=cat, title=name,
                     year=(x.get("first_air_date") or x.get("release_date") or "")[:4],
                     poster=IMG + "w185" + x["poster_path"], votes=x.get("vote_count") or 0,
+                    lang=x.get("original_language") or "", rating=round(x.get("vote_average") or 0, 1),
                     score=round((x.get("vote_average") or 0) * 10 - (page - 1) * 5 - i * 0.2, 2),
                     why=["popular " + dc["label"].lower()]))
-    old = (core.data.read(disc_file(cat), {}) or {}).get("items", [])
+    old = [] if fresh else (core.data.read(fname, {}) or {}).get("items", [])
 
     def ok(r):
         return ("disc:%s:%d" % (r["type"], r["id"])) not in dm and (r["id"], r["type"]) not in skip \
@@ -382,14 +412,17 @@ def disc_build(core, cat):
         on = sorted(n for n, k in wh.get("providers", {}).items() if k == "flatrate" and n in mine)
         if not on:
             continue
-        out.append(dict(r, providers=on, overview=wh.get("overview", "")[:2000], genres=wh.get("genres", []),
-                        rating=wh.get("rating"), runtime=wh.get("runtime"), seasons=wh.get("seasons"), added=time.time()))
-    core.data.write(disc_file(cat), dict(built=time.time(), items=out))
+        item = dict(r, providers=on, overview=wh.get("overview", "")[:2000], genres=wh.get("genres", []),
+                    rating=wh.get("rating") or r["rating"], runtime=wh.get("runtime"), seasons=wh.get("seasons"), added=time.time())
+        if F.passes(item, f, lang):
+            out.append(item)
+    core.data.write(fname, dict(built=time.time(), items=out, filters=f))
     return out
 
 
-def disc_list(core, cat):
-    c = core.data.read(disc_file(cat), {"built": 0, "items": []})
+def disc_list(core, cat, fname=None, f=None):
+    c = core.data.read(fname or disc_file(cat), {"built": 0, "items": []}) or {"built": 0, "items": []}
+    f, lang = f or disc_cfg(core.config())[cat], F.my_lang(core.config())
     dm, lt, now = core.dismissed(), core.later(), time.time()
     skip = {(w["id"], w["type"]) for w in core.wishlist()} | {(q["id"], "tv") for q in core.queue()}
 
@@ -397,13 +430,69 @@ def disc_list(core, cat):
         return "%s:%d" % (i["type"], i["id"])
 
     items = [dict(i, later=bool(lt.get(key(i), 0) > now - 30 * 86400)) for i in c["items"]
-             if (i["id"], i["type"]) not in skip and ("disc:" + key(i)) not in dm]
-    items.sort(key=lambda i: i["later"])
+             if (i["id"], i["type"]) not in skip and ("disc:" + key(i)) not in dm and F.passes(i, f, lang)]
     gone = [dict(i, at=dm["disc:" + key(i)]) for i in c["items"] if ("disc:" + key(i)) in dm]
-    return dict(built=c["built"], items=items, dismissed=gone)
+    return dict(built=c["built"], items=F.order(items, f), dismissed=gone, filters=f, pending=c.get("pending", False))
 
 
-def build_all(core, only=None):
+def _best(core, typ, disc, f, lang, add):
+    """The best rated on your services (not only the popular ones), and the great ones the filters let through."""
+    for page in (1, 2, 3):
+        try:
+            res = core.tmdb.get("/discover/" + typ, page=page, **dict(disc, sort_by="vote_average.desc")).get("results", [])
+        except Exception:
+            break
+        for x in res:
+            add(x, 4.0, "one of the best rated")
+    if f.get("great"):
+        loose = {k: v for k, v in disc.items() if k not in ("with_original_language", "without_genres")}
+        loose["vote_average.gte"] = f["great"]
+        for page in (1, 2):
+            try:
+                res = core.tmdb.get("/discover/" + typ, page=page, **dict(loose, sort_by="vote_average.desc")).get("results", [])
+            except Exception:
+                break
+            for x in res:
+                add(x, 5.0, "a great one")
+
+
+def custom_file(cat):
+    return "custom_%s.json" % cat
+
+
+def listing(core, cat, custom=False):
+    """What to Watch for one category: the everyday list, or the last "just for now" list."""
+    if custom:
+        c = core.data.read(custom_file(cat), None) or {}
+        f = c.get("filters")
+        if not f:
+            return dict(built=0, items=[], dismissed=[], filters=disc_cfg(core.config())[cat], custom=True)
+        kw = dict(fname=custom_file(cat), f=f)
+    else:
+        kw = {}
+    if cat == "movies":
+        out = suggestions(core, **kw)
+    elif cat == "series":
+        out = shows(core, **kw)
+    else:
+        out = disc_list(core, cat, **kw)
+    out["custom"] = custom
+    return out
+
+
+def build_one(core, cat, f=None, custom=False, fresh=False):
+    """Build one category's list. custom=True builds a one-off list with filters `f` and leaves the defaults alone."""
+    fname = custom_file(cat) if custom else None
+    if custom:
+        core.data.write(fname, dict(built=0, items=[], filters=f, pending=True))
+    if cat == "movies":
+        return suggest_build(core, f, fname or "suggestions.json")
+    if cat == "series":
+        return shows_build(core, f, fname or "show_suggestions.json", fresh=fresh or custom)
+    return disc_build(core, cat, f, fname, fresh=fresh or custom)
+
+
+def build_all(core, only=None, fresh=False):
     if not core.tmdb.configured:
         return
     for cat, d in disc_cfg(core.config()).items():
@@ -412,12 +501,7 @@ def build_all(core, only=None):
         if not d["on"] and not only:
             continue
         try:
-            if cat == "movies":
-                suggest_build(core)
-            elif cat == "series":
-                shows_build(core)
-            else:
-                disc_build(core, cat)
+            build_one(core, cat, fresh=fresh)
         except Exception:  # noqa: BLE001
             import logging
             logging.getLogger(__name__).exception("building %s picks failed", cat)

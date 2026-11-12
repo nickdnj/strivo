@@ -179,12 +179,24 @@ def test_picks_build_with_fake_tmdb(app):
     assert c.get("/api/suggest")["items"][0]["title"] == "Picked Movie"
     assert c.get("/api/shows")["items"][0]["title"] == "Picked Show"
     assert c.get("/api/discover?cat=docs")["items"]
+    assert c.get("/api/discover?cat=movies")["items"][0]["title"] == "Picked Movie"
+    st, r = c.post("/api/discover/custom", {"cat": "movies", "filters": {"min_rating": 9, "skip_genres": ["Nope"]}})
+    assert st == 200 and r["filters"]["min_rating"] == 9 and r["filters"]["skip_genres"] == []
+    for _ in range(50):
+        one = c.get("/api/discover?cat=movies&custom=1")
+        if one["built"] and not one.get("pending"):
+            break
+        time.sleep(0.1)
+    assert one["custom"] and one["built"] and one["items"] == []       # nothing rated 9+, defaults untouched
+    assert c.get("/api/discover?cat=movies")["items"]
+    assert c.post("/api/discover/custom", {"cat": "nope"})[0] == 400
 
 
 def test_sports_api(app, tmp_path):
-    from test_sports import FakeProvider, fixture
+    from test_sports import FakeProvider, fixture, ts
     a, c, *_ = app
     a.sports.provider = FakeProvider({"basketball/nba": fixture("espn_nba_day.json")})
+    a.sports.clock = lambda: ts("2026-11-10T23:00Z")   # the day the fixture was recorded, not today
     a.data.update_config(lambda cfg: cfg.update(services=["YouTube TV"]))
     st, p = c.post("/api/sports/prefs", {"leagues": ["nba"]})
     assert st == 200 and p["leagues"] == ["nba"]

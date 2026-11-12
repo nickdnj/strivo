@@ -142,6 +142,9 @@ nav#nav{position:fixed;left:0;right:0;bottom:0;top:auto;display:flex;justify-con
 nav#nav button{flex:1;background:none;border:0;color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;padding:4px 0;min-height:52px;border-radius:0;box-shadow:none;font-family:inherit;cursor:pointer}
 nav#nav button .ic{font-size:23px;line-height:1}
 nav#nav button.on{color:var(--acc);background:none;font-weight:700;box-shadow:none}
+.fbar{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:6px 8px 6px 10px;margin-bottom:10px}.fbar.cust{border-color:var(--acc)}.fbar .grow{min-width:0}.fbar .s{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fbar .btn{flex:none;padding:6px 10px}
+body.imm #ovtop .fbar{margin:0 0 4px;padding:4px 6px 4px 10px;background:#0006}
+.fsheet{background:var(--card,#171b22);color:var(--tx,#fff);border:1px solid var(--line);border-radius:14px 14px 0 0;padding:16px;width:100%;max-width:560px;box-sizing:border-box;max-height:88vh;overflow:auto}.fsheet .ln{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #ffffff14}.fsheet .svc .btn{margin:0 6px 6px 0}.fsheet .svc .btn.on{background:#7f1d1d;border-color:#f87171;color:#fff;text-decoration:line-through}.fsheet .note,.fbar .note{font-size:12.5px;color:var(--mut);margin-top:2px}
 .chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
 .chips .btn{flex:none;padding:8px 14px;border-radius:999px}
 .chips .btn.gear{font-size:24px;line-height:1;padding:3px 12px;display:flex;align-items:center;justify-content:center}
@@ -194,7 +197,7 @@ var go=function(){s.classList.add("out");setTimeout(function(){s.remove()},400)}
 <div id="sbprobe"></div><div id="ovtop"></div><main id="main"></main>
 <script>
 const $=s=>document.querySelector(s);
-const BAR=[["shows","📺","Watching"],["disc","✨","What to Watch"],["daily","📰","Daily"],["sports","🏟️","Sports"],["wish","🔖","Saved"],["more","☰","More"]];
+const BAR=[["shows","📺","Watching"],["disc","✨","Discover"],["daily","📰","Daily"],["sports","🏟️","Sports"],["wish","🔖","To Watch"],["more","☰","More"]];
 const MORE=[["hist","History","Everything you watched, by day"],["vid","Videos","YouTube and other videos"],["live","Live TV","Live channels you watched"],["stat","Stats","Hours by app"],["dev","Devices","Your TVs and media servers, and their health"],["set","Settings","Services, country, what to watch, rules"]];
 const TABS=BAR.map(b=>[b[0],b[2]]).concat(MORE.map(m=>[m[0],m[1]]));
 let sub=localStorage.getItem("wl_sub")||"shows";let D=null,tab=localStorage.getItem("wl_tab")||"shows",sort=localStorage.getItem("wl_sort")||"recent",detail=null;
@@ -268,8 +271,8 @@ function wishDetail(w){immOff();const m=$("#main");const tv=w.type=="tv";
   '<div class="row" style="display:block">'+rows.map(r=>'<div style="display:flex;gap:10px;margin:3px 0"><div class="s" style="width:92px;flex:none">'+esc(r[0])+'</div><div style="white-space:normal;flex:1">'+esc(r[1])+'</div></div>').join("")+'</div>'+
   '<div class="day">Where to watch</div><div class="row" style="display:block">'+provGroups(w)+(w.link?'<div style="margin-top:8px"><a class="lnk" target="_blank" rel="noopener" href="'+esc(w.link)+'">All options on JustWatch ›</a></div>':'')+
   (w.live?'<div style="margin-top:6px"><a class="lnk" target="_blank" rel="noopener" href="https://tv.youtube.com/search?q='+encodeURIComponent(w.title)+'">Open in YouTube TV to record ›</a></div>':'')+'</div>'+
-  '<div style="margin-top:12px"><button class="btn" id="wrm">Remove from wishlist</button></div>';
- $("#wback").onclick=()=>{dong();render()};
+  '<div style="margin-top:12px;display:flex;gap:8px"><button class="btn add" id="wplay">▶ Play</button><button class="btn" id="wrm">Remove from To Watch</button></div>';
+ $("#wback").onclick=()=>{dong();render()};$("#wplay").onclick=()=>{bloop();tvSheet(w)};
  $("#wrm").onclick=async()=>{bloop();await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"remove",id:w.id,type:w.type})});render()}}
 const imgBox=u=>'<div class="pw"><div class="po">'+(u?'<img src="'+esc(u)+'" alt="">':'▶')+'</div></div>';
 const inWL=(id,type)=>WL.some(w=>w.id==id&&w.type==type);
@@ -300,16 +303,57 @@ async function stSave(o,msg){try{ST=await (await fetch("/api/settings",{method:"
 async function discPage(){const m=$("#main");if(!ST){m.innerHTML='<div class="empty">Loading…</div>';await stLoad();if(tab!="disc")return}
  const cats=Object.entries((ST&&ST.discover)||{series:{label:"Series",on:true},movies:{label:"Movies",on:true}}).filter(([k,v])=>v.on);
  if(!cats.some(c=>c[0]==dcat))dcat=(cats[0]||["series"])[0];
- const intro={series:"Series picked from what you watch and what you like. ＋ Watch adds one to Watching.",movies:"Recent, well-rated movies on your services, based on what you watch and what you tell it."}[dcat]||"Well-rated picks on your services. Change what shows up in More › Settings.";
- m.innerHTML='<div class="chips">'+cats.map(([k,v])=>'<button class="btn'+(dcat==k?" on":"")+'" data-dc="'+k+'">'+esc(v.label)+'</button>').join("")+'<button class="btn gear" data-dc="__set" title="Settings" aria-label="Settings">⚙︎</button></div><div class="s" style="margin-bottom:8px">'+esc(intro)+'</div>'+
+ const intro="Picks on your services that fit your filters. ＋ adds one to To Watch, Later moves it down, ✕ passes.";
+ m.innerHTML='<div class="chips">'+cats.map(([k,v])=>'<button class="btn'+(dcat==k?" on":"")+'" data-dc="'+k+'">'+esc(v.label)+'</button>').join("")+'<button class="btn gear" data-dc="__set" title="Settings" aria-label="Settings">⚙︎</button></div><div class="s" style="margin-bottom:8px">'+esc(intro)+'</div><div id="fbar"></div>'+
   (dcat=="series"?'<div id="hlist"><div class="empty">Loading…</div></div>':dcat=="movies"?'<div id="slist"><div class="empty">Loading…</div></div>':'<div id="glist"><div class="empty">Loading…</div></div>');
  m.querySelectorAll("[data-dc]").forEach(b=>b.onclick=()=>{bloop();if(b.dataset.dc=="__set")return go("set");dcat=b.dataset.dc;localStorage.setItem("wl_dcat",dcat);discPage()});
- if(dcat=="series")showsLoad();else if(dcat=="movies")sugLoad();else discLoad(dcat)}
-async function discLoad(cat){try{GN=await (await fetch("/api/discover?cat="+cat)).json()}catch(e){GN={items:[],dismissed:[],built:0}}GN.cat=cat;drawGen()}
+ drawFbar();if(dcat=="series")showsLoad();else if(dcat=="movies")sugLoad();else discLoad(dcat)}
+let DV={},REB={};
+const dq=c=>"/api/discover?cat="+c+(DV[c]?"&custom=1":"");
+const langName=()=>({en:"English",es:"Spanish",fr:"French",de:"German",it:"Italian",pt:"Portuguese",ja:"Japanese",ko:"Korean",nl:"Dutch",sv:"Swedish"})[(ST||{}).my_lang]||"My language";
+function fsum(f){if(!f)return"";const g=f.skip_genres||[];return["★ "+Number(f.min_rating).toFixed(1)+"+",f.min_votes?Number(f.min_votes).toLocaleString()+"+ ratings":"",f.years?"last "+f.years+" yr":"any year",f.langs=="mine"?langName()+" only":"",g.length?"no "+g.join(", "):"",f.great?"great ones ★ "+Number(f.great).toFixed(1)+"+ always":"",f.sort=="rating"?"best rated first":f.sort=="new"?"newest first":""].filter(Boolean).join(" · ")}
+function curL(){return dcat=="movies"?SG:dcat=="series"?HS:GN}
+function drawFbar(){const el=$("#fbar");if(!el||tab!="disc")return;const L=curL();const f=(L&&L.cat_==dcat&&L.filters)||((ST||{}).discover||{})[dcat];const busy=REB[dcat]||(L&&L.cat_==dcat&&L.pending);
+ el.innerHTML='<div class="fbar'+(DV[dcat]?" cust":"")+'"><div class="grow"><div class="s">'+(DV[dcat]?"<b>Just for now:</b> ":"<b>Filters:</b> ")+esc(fsum(f))+'</div>'+(busy?'<div class="s" style="color:var(--acc)">Building the list… a minute or two.</div>':'')+'</div>'+
+  '<button class="btn" id="fbtn">Filters</button>'+(DV[dcat]?'<button class="btn" id="fback">My picks</button>':'<button class="btn" id="frb" title="Rebuild this list from scratch"'+(busy?" disabled":"")+'>↻</button>')+'</div>';
+ $("#fbtn").onclick=()=>{bloop();filterSheet(f||{})};
+ const b=$("#fback");if(b)b.onclick=()=>{bloop();DV[dcat]=false;discPage()};
+ const r=$("#frb");if(r)r.onclick=()=>{bloop();rebuild(dcat)}}
+function discReload(cat){if(tab!="disc"||dcat!=cat)return;if(cat=="series")showsLoad();else if(cat=="movies")sugLoad();else discLoad(cat)}
+async function waitBuilt(cat,before,custom){for(let i=0;i<75;i++){await new Promise(r=>setTimeout(r,4000));if(!!DV[cat]!=custom)break;let j=null;try{j=await (await fetch(dq(cat))).json()}catch(e){}
+  if(j&&j.built>before&&!j.pending){REB[cat]=false;discReload(cat);toast(j.failed?"Could not build that list. Try again later.":(j.items.length?j.items.length+" picks ready":"Nothing fits those filters. Try loosening them."));return}}
+ REB[cat]=false;if(tab=="disc"&&dcat==cat)drawFbar()}
+async function rebuild(cat){const L=curL();const before=(L&&L.built)||0;REB[cat]=true;drawFbar();try{await fetch("/api/discover/refresh?fresh=1&cat="+cat)}catch(e){}toast("Rebuilding this list from scratch");waitBuilt(cat,before,false)}
+const withCur=(l,c)=>l.map(Number).includes(Number(c))?l:l.concat([Number(c)]).sort((a,b)=>a-b);
+function filterSheet(f0){const old=document.querySelector(".tvs");if(old)old.remove();const cat=dcat;
+ const f=Object.assign({min_rating:7.5,min_votes:100,years:0,langs:"any",great:0,sort:"fit"},f0,{skip_genres:(f0.skip_genres||[]).slice()});
+ const d=document.createElement("div");d.className="tvs";d.style.cssText="position:fixed;inset:0;background:#000a;z-index:100;display:flex;align-items:flex-end;justify-content:center";
+ const lab=(((ST||{}).discover||{})[cat]||{}).label||"";const G=(ST&&ST.genres)||[];
+ const draw=()=>{d.innerHTML='<div class="fsheet"><div class="t" style="font-size:17px;margin-bottom:4px">Filters · '+esc(lab)+'</div>'+
+  '<div class="ln"><div>Rated at least</div><select id="fr">'+opt(withCur([6,6.5,7,7.5,8,8.2,8.5,8.8,9],f.min_rating),f.min_rating,v=>"★ "+Number(v).toFixed(1))+'</select></div>'+
+  '<div class="ln"><div>Rated by at least<div class="note">More ratings, more trustworthy</div></div><select id="fv">'+opt(withCur([0,50,100,300,1000,3000,10000],f.min_votes),f.min_votes,v=>v?Number(v).toLocaleString()+" people":"Anyone")+'</select></div>'+
+  '<div class="ln"><div>Released</div><select id="fy">'+opt(withCur([0,1,3,5,10,20,30],f.years),f.years,v=>v==0?"Any year":"In the last "+v+" year"+(v==1?"":"s"))+'</select></div>'+
+  '<div class="ln"><div>Language</div><select id="fl">'+opt(["any","mine"],f.langs,v=>v=="any"?"Any language":langName()+"-language only")+'</select></div>'+
+  '<div class="s" style="margin:10px 0 6px">Skip these genres</div><div class="svc">'+G.map(g=>'<button class="btn'+(f.skip_genres.includes(g)?" on":"")+'" data-fg="'+esc(g)+'">'+esc(g)+'</button>').join("")+'</div>'+
+  '<div class="ln"><div>But let the great ones through<div class="note">Rated this high, a pick gets past skipped genres and language</div></div><select id="fgr">'+opt(withCur([0,8,8.3,8.5,8.8,9],f.great||0),f.great||0,v=>Number(v)?"★ "+Number(v).toFixed(1)+"+":"Off")+'</select></div>'+
+  '<div class="ln"><div>Sort by</div><select id="fs">'+opt(["fit","rating","new"],f.sort,v=>({fit:"Best for you",rating:"Highest rated",new:"Newest"})[v])+'</select></div>'+
+  '<button class="btn add" id="fsave" style="width:100%;padding:11px;margin-top:12px">Save as my everyday filters</button>'+
+  '<button class="btn" id="fnow" style="width:100%;padding:11px;margin-top:8px">Just for now</button>'+
+  '<div class="note" style="margin-top:6px">Everyday filters shape the list Strivo keeps fresh for you each day. Just for now builds a one-off list and leaves them alone.</div>'+
+  '<button class="btn" id="fx" style="width:100%;padding:10px;margin-top:8px">Cancel</button></div>';
+  const num=(id,k)=>{d.querySelector(id).onchange=e=>{f[k]=+e.target.value}};num("#fr","min_rating");num("#fv","min_votes");num("#fy","years");num("#fgr","great");
+  d.querySelector("#fl").onchange=e=>{f.langs=e.target.value};d.querySelector("#fs").onchange=e=>{f.sort=e.target.value};
+  d.querySelectorAll("[data-fg]").forEach(b=>b.onclick=()=>{bloop();const g=b.dataset.fg;f.skip_genres=f.skip_genres.includes(g)?f.skip_genres.filter(x=>x!=g):f.skip_genres.concat([g]);b.classList.toggle("on")});
+  d.querySelector("#fx").onclick=()=>d.remove();
+  d.querySelector("#fsave").onclick=async()=>{bloop();d.remove();const L=curL();const before=(!DV[cat]&&L&&L.built)||0;await stSave({discover:{[cat]:f}},"Saved. Rebuilding with your filters…");DV[cat]=false;REB[cat]=true;
+   try{await fetch("/api/discover/refresh?fresh=1&cat="+cat)}catch(e){}if(tab=="disc"&&dcat==cat)discPage();waitBuilt(cat,before,false)};
+  d.querySelector("#fnow").onclick=async()=>{bloop();d.remove();try{await fetch("/api/discover/custom",{method:"POST",body:JSON.stringify({cat,filters:f})})}catch(e){}DV[cat]=true;if(tab=="disc"&&dcat==cat)discPage();toast("Finding picks for those filters…");waitBuilt(cat,0,true)}};
+ d.onclick=e=>{if(e.target===d)d.remove()};document.body.appendChild(d);draw()}
+async function discLoad(cat){try{GN=await (await fetch(dq(cat))).json()}catch(e){GN={items:[],dismissed:[],built:0}}GN.cat=cat;GN.cat_=cat;drawFbar();drawGen()}
 const genLater=async(x,on)=>fetch("/api/discover/later",{method:"POST",body:JSON.stringify({id:x.id,type:x.type,on})});
-const genAdd=async x=>{if(x.type=="tv")await queueAdd(x);else await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"add",id:x.id,type:"movie",title:x.title,year:x.year,poster:x.poster})})};
+const genAdd=async x=>fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"add",id:x.id,type:x.type||"movie",title:x.title,year:x.year,poster:x.poster})});
 function cardGen(x){const tv=x.type=="tv";return{tid:x.id,ttype:x.type,poster:x.poster,title:x.title,star:x.rating||"",badge:x.later?"Later":"",sub:[tv?"Series":"Movie",x.year,tv&&x.seasons?x.seasons+" season"+(x.seasons==1?"":"s"):(x.runtime?x.runtime+" min":""),(x.genres||[]).slice(0,2).join(" · ")].filter(Boolean).join(" · "),chips:x.providers,desc:x.overview,open:()=>reelDetail(x),
- actions:[{i:"▶",l:"Play",f:()=>tvSheet(x)},aInfo(()=>reelDetail(x)),{i:"＋",l:tv?"Watch":"Save",f:async(b,s)=>{bloop();await genAdd(x);dong();hideSlide(s);toast(x.title+(tv?" added to Watching":" saved"))}},
+ actions:[{i:"▶",l:"Play",f:()=>tvSheet(x)},aInfo(()=>reelDetail(x)),{i:"＋",l:"To Watch",f:async(b,s)=>{bloop();await genAdd(x);dong();hideSlide(s);toast(x.title+" added to To Watch")}},
   {i:"⏳",l:"Later",f:async(b,s)=>{bloop();await genLater(x,true);hideSlide(s);toast(x.title+" moved down for now",async()=>{await genLater(x,false);discLoad(x.cat)})}},{i:"✕",l:"Pass",f:(b,s)=>reasonSheet(x,()=>hideSlide(s))}]}}
 function drawGen(){const el=$("#glist");if(!el||!GN)return;if(mode!="posters")immOff();
  if(mode=="posters"&&GN.items.length){reelFeed(el,GN.items.map(cardGen));return}
@@ -317,13 +361,13 @@ function drawGen(){const el=$("#glist");if(!el||!GN)return;if(mode!="posters")im
  const it=GN.items.map((x,i)=>'<div class="row" data-gi="'+i+'" style="cursor:pointer'+(x.later?';opacity:.6':'')+'">'+imgBox(x.poster)+'<div class="grow"><div class="t">'+esc(x.title)+'<span class="tag">'+(x.type=="tv"?"Series":"Movie")+(x.year?' · '+esc(x.year):'')+'</span>'+(x.rating?'<span class="tag" style="color:var(--acc);border-color:var(--acc);font-weight:700">★ '+x.rating+'</span>':'')+(x.later?'<span class="tag">Later</span>':'')+'</div>'+
   '<div class="s">'+esc((x.genres||[]).slice(0,3).join(" · "))+'</div>'+(x.overview?'<div class="s" style="white-space:normal;margin-top:3px">'+esc(x.overview)+'</div>':'')+
   '<div>'+(x.providers||[]).map(p=>'<span class="chip mine">'+esc(p)+'</span>').join("")+'</div></div>'+
-  '<div class="side"><button class="x" data-gx="'+i+'" title="Not interested">✕</button><button class="btn" data-gl="'+i+'">Later</button><button class="btn add" data-ga="'+i+'">'+(x.type=="tv"?"＋ Watch":"＋ Save")+'</button></div></div>').join("");
+  '<div class="side"><button class="x" data-gx="'+i+'" title="Not interested">✕</button><button class="btn" data-gl="'+i+'">Later</button><button class="btn add" data-ga="'+i+'">＋ To Watch</button></div></div>').join("");
  const dm=GN.dismissed.length?'<div class="rmlist"><button class="btn" id="gdtoggle">Dismissed · '+GN.dismissed.length+'</button><div id="gdbody" hidden>'+GN.dismissed.map((x,i)=>'<div class="row"><div class="grow"><div class="t">'+esc(x.title)+'</div></div><button class="btn" data-gr="'+i+'">Restore</button></div>').join("")+'</div></div>':"";
  el.innerHTML=(it||'<div class="empty">'+(GN.built?'Nothing new right now.':'Building this list. Check back in a few minutes.')+'</div>')+dm;
  el.querySelectorAll(".row[data-gi]").forEach(r=>r.onclick=e=>{if(e.target.closest("button,a"))return;bloop();reelDetail(GN.items[+r.dataset.gi])});
  el.querySelectorAll("[data-gx]").forEach(b=>b.onclick=e=>{e.stopPropagation();bloop();reasonSheet(GN.items[+b.dataset.gx])});
  el.querySelectorAll("[data-gl]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const x=GN.items[+b.dataset.gl];bloop();await genLater(x,!x.later);discLoad(GN.cat)});
- el.querySelectorAll("[data-ga]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const x=GN.items[+b.dataset.ga];bloop();await genAdd(x);dong();discLoad(GN.cat);toast(x.title+(x.type=="tv"?" added to Watching":" saved"))});
+ el.querySelectorAll("[data-ga]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const x=GN.items[+b.dataset.ga];bloop();await genAdd(x);dong();discLoad(GN.cat);toast(x.title+" added to To Watch")});
  el.querySelectorAll("[data-gr]").forEach(b=>b.onclick=async()=>{const x=GN.dismissed[+b.dataset.gr];bloop();await fetch("/api/discover/restore",{method:"POST",body:JSON.stringify({id:x.id,type:x.type})});discLoad(GN.cat)});
  const t=$("#gdtoggle");if(t)t.onclick=()=>{bloop();$("#gdbody").hidden=!$("#gdbody").hidden}}
 const opt=(vals,cur,lab)=>vals.map(v=>'<option value="'+v+'"'+(String(v)==String(cur)?" selected":"")+'>'+esc(lab?lab(v):v)+'</option>').join("");
@@ -333,8 +377,8 @@ async function settingsPage(){const m=$("#main");m.innerHTML='<div class="empty"
  const draw=()=>{const S=ST;
  m.innerHTML='<div class="set" id="setp">'+
   '<h3>My streaming services</h3><div class="row"><div class="svc">'+S.all_services.map(n=>'<button class="btn'+(S.my_services.includes(n)?" on":"")+'" data-sv="'+esc(n)+'">'+esc(n)+'</button>').join("")+'</div><div class="note">Picks only show what is included with these. Tap to turn one on or off.</div></div>'+
-  '<h3>What to Watch</h3><div class="row">'+Object.entries(S.discover).map(([k,v])=>'<div class="ln"><div class="grow"><div class="t">'+esc(v.label)+'</div>'+(v.on?'<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap"><select data-dr="'+k+'">'+opt([6,6.5,7,7.2,7.5,8,8.5],v.min_rating,rt)+'</select><select data-dy="'+k+'">'+opt([0,1,3,5,10,20],v.years,yrs)+'</select></div>':'<div class="s">Off</div>')+'</div><input type="checkbox" class="sw" data-don="'+k+'"'+(v.on?" checked":"")+'></div>').join("")+
-   '<div style="margin-top:10px"><button class="btn add" id="rebuild">↻ Refresh picks now</button></div><div class="note">Picks rebuild every day. Refresh after changing services or filters (takes a few minutes).</div></div>'+
+  '<h3>Discover</h3><div class="row">'+Object.entries(S.discover).map(([k,v])=>'<div class="ln"><div class="grow"><div class="t">'+esc(v.label)+'</div>'+(v.on?'<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap"><select data-dr="'+k+'">'+opt(withCur([6,6.5,7,7.2,7.5,8,8.5,8.8,9],v.min_rating),v.min_rating,rt)+'</select><select data-dy="'+k+'">'+opt([0,1,3,5,10,20],v.years,yrs)+'</select></div>':'<div class="s">Off</div>')+'</div><input type="checkbox" class="sw" data-don="'+k+'"'+(v.on?" checked":"")+'></div>').join("")+
+   '<div style="margin-top:10px"><button class="btn add" id="rebuild">↻ Refresh picks now</button></div><div class="note">Picks rebuild every day. For genres, language, number of ratings and more, tap Filters on Discover.</div></div>'+
   '<h3>Watching</h3><div class="row"><div class="ln"><div>Keep a show after the last episode you watched</div><select data-k="queue_days">'+opt([7,14,21,28,42],S.queue_days,v=>(v/7)+" week"+(v==7?"":"s"))+'</select></div>'+
    '<div class="ln"><div>Bring a show back when a new episode aired within</div><select data-k="queue_new_days">'+opt([30,60,90,180],S.queue_new_days,v=>v+" days")+'</select></div></div>'+
   '<h3>Daily</h3><div class="row"><div class="ln"><div>Keep late night, game and daily shows</div><select data-k="daily_days">'+opt([3,5,7,10,14],S.daily_days,v=>v+" days")+'</select></div>'+
@@ -359,10 +403,10 @@ async function settingsPage(){const m=$("#main");m.innerHTML='<div class="empty"
  draw();try{tvs=(await (await fetch("/api/tvs")).json()).devices||[];if(tab=="set"&&$("#setp"))draw()}catch(e){}}
 let HS=null;
 async function queueAdd(x){await fetch("/api/queue/add",{method:"POST",body:JSON.stringify({id:x.id,title:x.title,year:x.year,poster:x.poster,providers:x.providers||[]})})}
-async function showsLoad(){try{HS=await (await fetch("/api/shows")).json()}catch(e){HS={items:[],dismissed:[],built:0}}drawShows()}
+async function showsLoad(){try{HS=await (await fetch(dq("series"))).json()}catch(e){HS={items:[],dismissed:[],built:0}}HS.cat_="series";drawFbar();drawShows()}
 async function laterSet(x,on){await fetch("/api/shows/later",{method:"POST",body:JSON.stringify({id:x.id,on})})}
 function cardShow(x){return{tid:x.id,ttype:"tv",poster:x.poster,title:x.title,star:x.rating||"",badge:x.later?"Later":"",sub:[x.year,x.seasons?x.seasons+" season"+(x.seasons==1?"":"s"):"",(x.genres||[]).slice(0,2).join(" · ")].filter(Boolean).join(" · "),chips:x.providers,desc:x.overview,why:"Why: "+(x.why||[]).join(" · "),open:()=>reelDetail(x),
- actions:[{i:"▶",l:"Play",f:()=>tvSheet(x)},aInfo(()=>reelDetail(x)),{i:"＋",l:"Watch",f:async(b,s)=>{bloop();await queueAdd(x);dong();hideSlide(s);toast(x.title+" added to Watching")}},
+ actions:[{i:"▶",l:"Play",f:()=>tvSheet(x)},aInfo(()=>reelDetail(x)),{i:"＋",l:"To Watch",f:async(b,s)=>{bloop();await genAdd(Object.assign({type:"tv"},x));dong();hideSlide(s);toast(x.title+" added to To Watch")}},
   {i:"⏳",l:"Later",f:async(b,s)=>{bloop();await laterSet(x,true);hideSlide(s);toast(x.title+" moved down for now",async()=>{await laterSet(x,false);showsLoad()})}},{i:"✕",l:"Pass",f:(b,s)=>reasonSheet(x,()=>hideSlide(s))}]}}
 function drawShows(){const el=$("#hlist");if(!el||!HS)return;if(mode!="posters")immOff();
  if(mode=="posters"&&HS.items.length){reelFeed(el,HS.items.map(cardShow));return}
@@ -378,14 +422,14 @@ function drawShows(){const el=$("#hlist");if(!el||!HS)return;if(mode!="posters")
  el.querySelectorAll(".row[data-hi]").forEach(r=>r.onclick=e=>{if(e.target.closest("button,a"))return;bloop();reelDetail(HS.items[+r.dataset.hi])});
  el.querySelectorAll("[data-hx]").forEach(b=>b.onclick=e=>{e.stopPropagation();bloop();reasonSheet(HS.items[+b.dataset.hx])});
  el.querySelectorAll("[data-hl]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const x=HS.items[+b.dataset.hl];bloop();await laterSet(x,!x.later);showsLoad()});
- el.querySelectorAll("[data-hq]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const x=HS.items[+b.dataset.hq];bloop();await queueAdd(x);dong();showsLoad();toast(x.title+" added to Watching")});
+ el.querySelectorAll("[data-hq]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const x=HS.items[+b.dataset.hq];bloop();await genAdd(Object.assign({type:"tv"},x));dong();showsLoad();toast(x.title+" added to To Watch")});
  el.querySelectorAll("[data-hr]").forEach(b=>b.onclick=async()=>{bloop();await fetch("/api/shows/restore",{method:"POST",body:JSON.stringify({id:+b.dataset.hr})});showsLoad()});
  const t=$("#hdtoggle");if(t)t.onclick=()=>{bloop();$("#hdbody").hidden=!$("#hdbody").hidden}}
 function cardQueued(q){return{tid:q.id,ttype:"tv",poster:q.poster,title:q.title,badge:"Not started",sub:"Show"+(q.year?" · "+q.year:""),chips:q.providers,desc:"Added from What to Watch. It becomes a regular show here after the first episode.",open:()=>reelDetail(Object.assign({type:"tv"},q)),
  actions:[{i:"▶",l:"Play",f:()=>tvSheet(Object.assign({type:"tv"},q))},aInfo(()=>reelDetail(Object.assign({type:"tv"},q))),{i:"✕",l:"Remove",f:async(b,s)=>{bloop();await fetch("/api/queue/remove",{method:"POST",body:JSON.stringify({id:q.id})});hideSlide(s);toast("Removed "+q.title)}}]}}
 const rowQueued=(q,i)=>'<div class="row" data-qi="'+i+'" style="cursor:pointer">'+imgBox(q.poster)+'<div class="grow"><div class="t">'+esc(q.title)+'<span class="tag">Not started</span></div><div class="s">'+(q.providers||[]).map(esc).join(" · ")+'</div></div><div class="side"><button class="x" data-qr="'+q.id+'" title="Remove">✕</button></div></div>';
 let SG=null;
-async function sugLoad(){try{SG=await (await fetch("/api/suggest")).json()}catch(e){SG={items:[],dismissed:[],built:0}}drawSug()}
+async function sugLoad(){try{SG=await (await fetch(dq("movies"))).json()}catch(e){SG={items:[],dismissed:[],built:0}}SG.cat_="movies";drawFbar();drawSug()}
 function provHTML(w,x){const p=w.providers;if(!p||Array.isArray(p))return(x.providers||[]).map(n=>'<span class="chip mine">'+esc(n)+'</span>').join("");
  const mine=new Set(x.providers||[]);const L=[["flatrate","Stream"],["free","Free"],["ads","Free with ads"],["rent","Rent"],["buy","Buy"]];
  return L.map(([k,l])=>{const ns=Object.keys(p).filter(n=>p[n]==k);return ns.length?'<div class="s" style="margin-top:6px">'+l+'</div><div>'+ns.map(n=>'<span class="chip'+(k=="flatrate"&&mine.has(n)?' mine':'')+'">'+esc(n)+'</span>').join("")+'</div>':''}).join("")||'<div class="s">Not listed.</div>'}
@@ -456,11 +500,12 @@ async function slideTrailer(s,c){if(!c||!c.tid||!s.classList.contains("cur")||s.
 const bigp=u=>(u||"").replace("/w185/","/w780/");
 const hideSlide=s=>{s.style.display="none"};
 const aInfo=f=>({i:"ⓘ",l:"Info",f});
-function cardSug(x){return{tid:x.id,ttype:"movie",poster:x.poster,title:x.title,star:x.rating||"",sub:[x.year,x.runtime?x.runtime+" min":"",(x.genres||[]).slice(0,3).join(" · ")].filter(Boolean).join(" · "),chips:x.providers,desc:x.overview,why:"Why: "+(x.why||[]).join(" · "),open:()=>reelDetail(x),
- actions:[{i:"▶",l:"Play",f:()=>tvSheet(x)},aInfo(()=>reelDetail(x)),{i:"＋",l:"Wish",f:async b=>{bloop();await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"add",id:x.id,type:"movie",title:x.title,year:x.year,poster:x.poster})});dong();b.innerHTML='✓<small>Added</small>'}},{i:"✕",l:"Pass",f:(b,s)=>reasonSheet(x,()=>hideSlide(s))}]}}
+function cardSug(x){return{tid:x.id,ttype:"movie",poster:x.poster,title:x.title,star:x.rating||"",badge:x.later?"Later":"",sub:[x.year,x.runtime?x.runtime+" min":"",(x.genres||[]).slice(0,3).join(" · ")].filter(Boolean).join(" · "),chips:x.providers,desc:x.overview,why:"Why: "+(x.why||[]).join(" · "),open:()=>reelDetail(x),
+ actions:[{i:"▶",l:"Play",f:()=>tvSheet(x)},aInfo(()=>reelDetail(x)),{i:"＋",l:"To Watch",f:async(b,s)=>{bloop();await genAdd(x);dong();hideSlide(s);toast(x.title+" added to To Watch")}},
+  {i:"⏳",l:"Later",f:async(b,s)=>{bloop();await genLater(Object.assign({type:"movie"},x),true);hideSlide(s);toast(x.title+" moved down for now",async()=>{await genLater(Object.assign({type:"movie"},x),false);sugLoad()})}},{i:"✕",l:"Pass",f:(b,s)=>reasonSheet(x,()=>hideSlide(s))}]}}
 function cardWL(w){const on=(w.providers||[]).filter(p=>p.mine&&p.kind=="flatrate").map(p=>p.name);const nx=w.next_air?"Next: "+(w.next_ep?w.next_ep+" · ":"")+fdate(w.next_air):"";
  return{tid:w.id,ttype:w.type,poster:w.poster,title:w.title,star:w.rating||"",sub:[w.type=="tv"?"Show":"Movie",w.year,nx].filter(Boolean).join(" · "),chips:on.length?on:(w.providers||[]).filter(p=>p.kind=="flatrate").map(p=>p.name).slice(0,4),desc:w.overview,open:()=>wishDetail(w),
- actions:[aInfo(()=>wishDetail(w)),{i:"✕",l:"Remove",f:async(b,s)=>{bloop();await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"remove",id:w.id,type:w.type})});hideSlide(s);toast("Removed "+w.title)}}]}}
+ actions:[{i:"▶",l:"Play",f:()=>tvSheet(w)},aInfo(()=>wishDetail(w)),{i:"✕",l:"Remove",f:async(b,s)=>{bloop();await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"remove",id:w.id,type:w.type})});hideSlide(s);toast("Removed "+w.title)}}]}}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-shplay]");if(b){bloop();playNow(b.dataset.shplay,b.dataset.app)}});
 const playNow=(title,app)=>tvSheet({title,providers:[app],resume:true});
 const playAct=(title,app)=>({i:"▶",l:"Play",f:()=>{bloop();playNow(title,app)}});
@@ -481,18 +526,18 @@ async function reelDetail(x){const d=document.createElement("div");d.className="
   '<div class="row" style="display:block">'+rows.map(r=>'<div style="display:flex;gap:10px;margin:3px 0"><div class="s" style="width:92px;flex:none">'+esc(r[0])+'</div><div style="white-space:normal;flex:1">'+esc(r[1])+'</div></div>').join("")+'</div>'+
   '<div class="day">Where to watch</div><div class="row" style="display:block">'+provHTML(w,x)+'</div>'+
   '<div class="day">Reviews</div>'+(ex?(ex.reviews.length?ex.reviews.map(r=>'<div class="rv"><div class="s"><b>'+esc(r.author)+'</b>'+(r.rating?' · ★ '+r.rating+'/10':'')+(r.date?' · '+esc(r.date):'')+'</div><p>'+esc(r.text)+(r.text.length>=700?'…':'')+'</p>'+(r.url?'<a class="lnk" target="_blank" rel="noopener" href="'+esc(r.url)+'">Read full review ›</a>':'')+'</div>').join(""):'<div class="s">No written reviews on TMDB yet.</div>')+'<div class="day">Review links</div><div class="row" style="display:block">'+ex.links.map(l=>'<div style="margin:6px 0"><a class="lnk" target="_blank" rel="noopener" href="'+esc(l.url)+'">'+esc(l.name)+' ›</a></div>').join("")+'</div>':'<div class="s">Loading reviews…</div>')+
-  '<div style="margin-top:12px;display:flex;gap:8px"><button class="btn add" id="rdp">▶ Play on TV</button><button class="btn add" id="rdw">'+(tv?"＋ Watching":"＋ Wish")+'</button><button class="btn" id="rdx">✕ Pass…</button></div></div>';
+  '<div style="margin-top:12px;display:flex;gap:8px"><button class="btn add" id="rdp">▶ Play on TV</button><button class="btn add" id="rdw">'+"＋ To Watch"+'</button><button class="btn" id="rdx">✕ Pass…</button></div></div>';
   d.querySelector("#rdc").onclick=()=>{dong();d.remove()};
   const pl=d.querySelector("#vpl");if(pl)pl.onclick=()=>{d.querySelector("#vid").innerHTML='<iframe src="https://www.youtube.com/embed/'+ex.trailer+'?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>'};
   d.querySelector("#rdp").onclick=()=>{bloop();tvSheet(x)};
-  d.querySelector("#rdw").onclick=async()=>{bloop();if(tv)await queueAdd(x);else await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"add",id:x.id,type:"movie",title:x.title,year:x.year,poster:x.poster})});dong();d.querySelector("#rdw").textContent="✓ Added"};
+  d.querySelector("#rdw").onclick=async()=>{bloop();await genAdd(Object.assign({type:tv?"tv":"movie"},x));dong();d.querySelector("#rdw").textContent="✓ Added"};
   d.querySelector("#rdx").onclick=()=>reasonSheet(x,()=>{d.remove();const L=x.cat?(GN||{items:[]}).items:tv?(HS||{items:[]}).items:SG.items;const s=document.querySelector('.rl [data-i="'+L.indexOf(x)+'"]');if(s)s.style.display="none"})};
  draw();
  fetch("/api/suggest/detail?id="+x.id+(x.type=="tv"?"&type=tv":"")).then(r=>r.json()).then(r=>{if(r&&r.providers){w=Object.assign({},x,r);if(d.isConnected)draw()}}).catch(()=>{});
  fetch("/api/suggest/extras?id="+x.id+(x.type=="tv"?"&type=tv":"")).then(r=>r.json()).then(r=>{ex=r.reviews?r:{trailer:"",reviews:[],links:[]};if(d.isConnected)draw()}).catch(()=>{ex={trailer:"",reviews:[],links:[]};if(d.isConnected)draw()})}
 let sdetail=false;
 function reasonSheet(x,done){const old=document.querySelector(".sheet");if(old)old.remove();const tv=x.type=="tv",api=x.cat?"/api/discover/":tv?"/api/shows/":"/api/suggest/",reload=()=>x.cat?discLoad(x.cat):tv?showsLoad():sugLoad();
- const R=[["liked","Watched it, liked it"],["disliked","Watched it, didn't like it"],["want",tv?"Haven't seen it, add to Watching":"Haven't seen it, want to watch it"],["no","Not interested"]];
+ const R=[["liked","Watched it, liked it"],["disliked","Watched it, didn't like it"],["want","Haven't seen it, add to To Watch"],["no","Not interested"]];
  const d=document.createElement("div");d.className="sheet";d.style.cssText="position:fixed;inset:0;background:#0009;z-index:90;display:flex;align-items:flex-end;justify-content:center";
  d.innerHTML='<div style="background:var(--card);border:1px solid var(--line);border-radius:14px 14px 0 0;padding:16px;width:100%;max-width:560px;box-sizing:border-box"><div class="t" style="white-space:normal;margin-bottom:4px">Remove '+esc(x.title)+'?</div><div class="s" style="margin-bottom:10px">Why? This helps pick better '+(tv?"shows":"movies")+'.</div>'+
   R.map(r=>'<button class="btn" style="display:block;width:100%;text-align:left;margin:6px 0;padding:11px" data-r="'+r[0]+'">'+esc(r[1])+'</button>').join("")+
@@ -502,7 +547,7 @@ function reasonSheet(x,done){const old=document.querySelector(".sheet");if(old)o
  d.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{bloop();b.classList.toggle("on")});
  d.querySelectorAll("[data-r]").forEach(b=>b.onclick=async()=>{const reason=b.dataset.r,note=$("#rnote").value,tags=[...d.querySelectorAll("[data-t].on")].map(e=>e.dataset.t);d.remove();bloop();
   await fetch("/api/suggest/feedback",{method:"POST",body:JSON.stringify({id:x.id,title:x.title,reason,note,tags,genres:x.genres||[],type:tv?"tv":"movie"})});
-  if(reason=="want"){if(tv)await queueAdd(x);else await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"add",id:x.id,type:"movie",title:x.title,year:x.year,poster:x.poster})});dong();if(done)done();else reload();toast("Added "+x.title+(tv?" to Watching":" to wishlist"));return}
+  if(reason=="want"){await genAdd(Object.assign({type:tv?"tv":"movie"},x));dong();if(done)done();else reload();toast("Added "+x.title+(tv?" to Watching":" to wishlist"));return}
   await fetch(api+"dismiss",{method:"POST",body:JSON.stringify({id:x.id,type:x.type})});if(done)done();else reload();
   toast("Removed "+x.title,async()=>{await fetch(api+"restore",{method:"POST",body:JSON.stringify({id:x.id,type:x.type})});reload()})})}
 async function sugDetail(x){immOff();const m=$("#main");sdetail=true;let w=Object.assign({},x);
@@ -519,17 +564,18 @@ async function sugDetail(x){immOff();const m=$("#main");sdetail=true;let w=Objec
  draw();try{const r=await (await fetch("/api/suggest/detail?id="+x.id)).json();if(sdetail&&r&&r.providers){w=Object.assign({},x,r);draw()}}catch(e){}}
 function drawSug(){const el=$("#slist");if(!el||!SG)return;if(mode!="posters")immOff();
  if(mode=="posters"){reelFeed(el,SG.items.map(cardSug));return}
- const it=SG.items.map((x,i)=>'<div class="row" data-si="'+i+'" style="cursor:pointer">'+imgBox(x.poster)+'<div class="grow"><div class="t">'+esc(x.title)+'<span class="tag">Movie'+(x.year?' · '+esc(x.year):'')+'</span>'+(x.rating?'<span class="tag" style="color:var(--acc);border-color:var(--acc);font-weight:700">★ '+x.rating+'</span>':'')+'</div>'+
+ const it=SG.items.map((x,i)=>'<div class="row" data-si="'+i+'" style="cursor:pointer'+(x.later?';opacity:.6':'')+'">'+imgBox(x.poster)+'<div class="grow"><div class="t">'+esc(x.title)+'<span class="tag">Movie'+(x.year?' · '+esc(x.year):'')+'</span>'+(x.rating?'<span class="tag" style="color:var(--acc);border-color:var(--acc);font-weight:700">★ '+x.rating+'</span>':'')+'</div>'+
   '<div class="s" style="white-space:normal">Why: '+x.why.map(esc).join(" · ")+'</div>'+
   ((x.genres||[]).length?'<div class="s">'+esc((x.genres||[]).slice(0,3).join(" · "))+(x.runtime?' · '+x.runtime+' min':'')+(x.votes?' · '+x.votes.toLocaleString()+' ratings':'')+'</div>':'')+
   (x.overview?'<div class="s" style="white-space:normal;margin-top:3px">'+esc(x.overview)+'</div>':'')+
   '<div>'+x.providers.map(p=>'<span class="chip mine">'+esc(p)+'</span>').join("")+'</div></div>'+
-  '<div class="side"><button class="x" data-sd="'+i+'" title="Not interested">✕</button><button class="btn add" data-sw="'+i+'">＋ Wish</button></div></div>').join("");
+  '<div class="side"><button class="x" data-sd="'+i+'" title="Not interested">✕</button><button class="btn" data-sl="'+i+'">Later</button><button class="btn add" data-sw="'+i+'">＋ To Watch</button></div></div>').join("");
  const dm=SG.dismissed.length?'<div class="rmlist"><button class="btn" id="sdtoggle">Dismissed · '+SG.dismissed.length+'</button><div id="sdbody" hidden>'+SG.dismissed.map(x=>'<div class="row"><div class="grow"><div class="t">'+esc(x.title)+'</div></div><button class="btn" data-sr="'+x.id+'">Restore</button></div>').join("")+'</div></div>':"";
  el.innerHTML=(it||"")?it+dm:'<div class="empty">'+(SG.built?'Nothing new right now.':'Still building your list. Check back in a few minutes.')+'</div>'+dm;
  el.querySelectorAll("[data-sd]").forEach(b=>b.onclick=e=>{e.stopPropagation();bloop();reasonSheet(SG.items[+b.dataset.sd])});
  el.querySelectorAll(".row[data-si]").forEach(r=>r.onclick=e=>{if(e.target.closest("button,a"))return;bloop();reelDetail(SG.items[+r.dataset.si])});
- el.querySelectorAll("[data-sw]").forEach(b=>b.onclick=async()=>{const x=SG.items[+b.dataset.sw];bloop();await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"add",id:x.id,type:"movie",title:x.title,year:x.year,poster:x.poster})});dong();sugLoad()});
+ el.querySelectorAll("[data-sw]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const x=SG.items[+b.dataset.sw];bloop();await genAdd(x);dong();sugLoad();toast(x.title+" added to To Watch")});
+ el.querySelectorAll("[data-sl]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const x=SG.items[+b.dataset.sl];bloop();await genLater(Object.assign({type:"movie"},x),!x.later);sugLoad()});
  el.querySelectorAll("[data-sr]").forEach(b=>b.onclick=async()=>{bloop();await fetch("/api/suggest/restore",{method:"POST",body:JSON.stringify({id:+b.dataset.sr})});sugLoad()});
  const t=$("#sdtoggle");if(t)t.onclick=()=>{bloop();$("#sdbody").hidden=!$("#sdbody").hidden}}
 function render(){
@@ -570,7 +616,7 @@ function render(){
   if(!h)h='<div class="empty">Nothing yet.</div>'}
  else if(tab=="shw"){m.innerHTML='<div class="s" style="margin-bottom:8px">Shows to Watch: series picked for you from what you watch and what you like. ＋ Watch adds one to Now Playing.</div><div id="hlist"><div class="empty">Loading…</div></div>';showsLoad();return}
  else if(tab=="sug"){m.innerHTML='<div class="s" style="margin-bottom:8px">Movie picks: recent, well-rated movies on your services, based on what you watch.</div><div id="slist"><div class="empty">Loading…</div></div>';sugLoad();return}
- else if(tab=="wish"){m.innerHTML='<div class="sortbar"><input id="wq" class="wq" type="search" placeholder="Search shows and movies to add" autocomplete="off"></div><div id="wres"></div><div class="day">Your wishlist</div><div id="wlist"><div class="empty">Loading…</div></div>';wishInit();return}
+ else if(tab=="wish"){m.innerHTML='<div class="sortbar"><input id="wq" class="wq" type="search" placeholder="Search shows and movies to add" autocomplete="off"></div><div id="wres"></div><div class="day">Your To Watch list</div><div id="wlist"><div class="empty">Loading…</div></div>';wishInit();return}
  else{h='<div class="stats">'+Object.entries(D.hours).map(([a,v])=>'<div class="stat"><b>'+v.toFixed(1)+' h</b>'+esc(a)+'</div>').join("")+'</div><div class="s" style="margin-top:12px">Logging since '+esc((D.span_start||"").replace("T"," ").slice(0,16))+'</div>'}
  m.innerHTML=h;m.querySelectorAll("[data-po]").forEach(el=>poster(el.dataset.po,el,el.dataset.pt));
  m.querySelectorAll(".row[data-i]").forEach(r=>r.onclick=()=>openShow(D.series[+r.dataset.i]));
