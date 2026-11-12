@@ -9,8 +9,8 @@ expectation, not new code. Those live in `compat.json`:
 - `launch`        deep-link templates (trailers)
 - `expect`        what each app is known to report on each platform (used to detect breakage)
 
-A copy is bundled with Strivo. A newer copy can be installed from a GitHub release (`strivo.updates`): it is
-validated (schema, size, regex compile, checksum, minimum Strivo version) before use, saved next to the previous
+A copy is bundled with StriVo. A newer copy can be installed from a GitHub release (`strivo.updates`): it is
+validated (schema, size, regex compile, checksum, minimum StriVo version) before use, saved next to the previous
 one, and can be rolled back. Rules are data only: nothing in this file is ever executed.
 """
 from __future__ import annotations
@@ -77,7 +77,7 @@ def validate(raw: bytes, expected_sha256: str | None = None, strivo_version: str
     if not isinstance(r.get("version"), str):
         raise RulesError("missing version")
     if strivo_version and r.get("min_strivo") and newer(r["min_strivo"], strivo_version):
-        raise RulesError(f"needs Strivo {r['min_strivo']} or newer")
+        raise RulesError(f"needs StriVo {r['min_strivo']} or newer")
     for name, s in (r.get("services") or {}).items():
         ids = s.get("ids") if isinstance(s, dict) else None
         if not isinstance(ids, dict) or any(k not in PLATFORMS or not re.fullmatch(r"[\w.\-]{1,120}", str(v))
@@ -158,7 +158,7 @@ class Rules:
         try:
             r = validate(p.read_bytes(), strivo_version=self.strivo_version)
         except (RulesError, OSError):
-            return   # a damaged update never breaks Strivo: fall back to the bundled copy
+            return   # a damaged update never breaks StriVo: fall back to the bundled copy
         if newer(r["version"], self.bundled["version"]):
             self.r, self.source = r, "update"
 

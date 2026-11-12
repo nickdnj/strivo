@@ -1,7 +1,7 @@
 """The streaming-service catalog, read from the compatibility rules (src/strivo/rules/compat.json).
 
 App ids per platform, aliases, TMDB provider names and deep-link templates are data, so a rules update can fix
-them without a new Strivo release. If an id is wrong for your box, `strivo probe` shows the id it reported;
+them without a new StriVo release. If an id is wrong for your box, `strivo probe` shows the id it reported;
 a one-line fix to compat.json is the whole PR.
 """
 from __future__ import annotations

@@ -1,12 +1,12 @@
-# Contributing to Strivo
+# Contributing to StriVo
 
-Thanks for being here. Strivo gets better with every living room it works in, and most ways to help **don't need any code**.
+Thanks for being here. StriVo gets better with every living room it works in, and most ways to help **don't need any code**.
 
 ## Ways to help
 
 | You are… | You can… |
 |---|---|
-| 🛋️ **Someone who watches TV** | Try Strivo, tell us what's confusing, [share ideas](https://github.com/nickdnj/strivo/discussions/categories/ideas) |
+| 🛋️ **Someone who watches TV** | Try StriVo, tell us what's confusing, [share ideas](https://github.com/nickdnj/strivo/discussions/categories/ideas) |
 | 🧪 **Someone with a streaming box** | Run `strivo probe` and [share a compatibility report](docs/COMPATIBILITY.md#share-a-report). This is the #1 thing we need, especially for **Google TV, Android TV, Fire TV and Roku**. |
 | 🏠 **A Home Assistant / self-hosting fan** | Help test installs on Pi, NAS and HA; improve the [install guide](docs/INSTALL.md) |
 | 🎨 **A designer** | Couch-friendly UI, icons, the Posters view, accessibility |
@@ -42,7 +42,7 @@ Handy commands while working on an adapter:
 strivo discover --data ./dev-data        # what's on the network
 strivo now --data ./dev-data             # ask each configured box once what's playing
 strivo probe --data ./dev-data --minutes 2
-python tools/fake_roku.py                # a fake Roku to point Strivo at
+python tools/fake_roku.py                # a fake Roku to point StriVo at
 ```
 
 No box to test with? **[docs/TESTING.md](docs/TESTING.md)** shows how to use Google's Android TV emulator, Jellyfin

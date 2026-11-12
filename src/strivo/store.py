@@ -7,8 +7,8 @@ Earlier versions (and NiVo) kept the same rows in `events.jsonl`. On open, any l
 copied in, then the file is left alone, so an old install upgrades by itself and nothing is lost. `strivo export`
 writes the whole history back out as JSON Lines at any time: your data is never locked in.
 
-Backups are a job for the computer Strivo runs on (Time Machine, a NAS, restic...). Back up the whole data folder;
-when copying `strivo.db` by hand while Strivo runs, take `strivo.db-wal` with it, or use `sqlite3 strivo.db .backup`.
+Backups are a job for the computer StriVo runs on (Time Machine, a NAS, restic...). Back up the whole data folder;
+when copying `strivo.db` by hand while StriVo runs, take `strivo.db-wal` with it, or use `sqlite3 strivo.db .backup`.
 """
 from __future__ import annotations
 

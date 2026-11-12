@@ -28,7 +28,7 @@ class Device:
     identifier: str = ""           # stable id the platform uses (Apple TV id, serial, server id)
     model: str = ""                # e.g. "Apple TV 4K (gen 3)"; goes into probe reports
     os_version: str = ""
-    id: str = ""                   # Strivo's own id for this device (slug), used in history
+    id: str = ""                   # StriVo's own id for this device (slug), used in history
     enabled: bool = True
     platform: str = ""             # for android: "android" (Google TV / Android TV) or "firetv"
     extra: dict = field(default_factory=dict)

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 420" width="1280" height="420" role="img" aria-label="Strivo: the streaming DVR feeling, for every app">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 420" width="1280" height="420" role="img" aria-label="StriVo: the streaming DVR feeling, for every app">
   <defs>
     <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#0d0b26"/>
@@ -47,7 +47,7 @@
   </g>
 
   <!-- wordmark -->
-  <text x="198" y="196" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="92" font-weight="800" fill="#ffffff" letter-spacing="-2">Strivo</text>
+  <text x="198" y="196" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="92" font-weight="800" fill="#ffffff" letter-spacing="-2">StriVo</text>
   <text x="84" y="270" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" font-weight="600" fill="#ffd27a">The DVR feeling, for every streaming app.</text>
   <text x="84" y="312" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="21" fill="#c7c3ff">Automatic watch history · your nighttime queue · play it on your TV</text>
   <text x="84" y="350" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="17" fill="#8f89d6">Open source · runs in your home · no cloud, no account</text>

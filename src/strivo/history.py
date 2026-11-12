@@ -1,6 +1,6 @@
 """History: turn raw now-playing events into watch sessions, then into the queue, movies and Daily.
 
-This is the heart of Strivo and the part most worth reading before you change behaviour. It works on any
+This is the heart of StriVo and the part most worth reading before you change behaviour. It works on any
 event source; adapters only decide which fields they fill in.
 """
 from __future__ import annotations

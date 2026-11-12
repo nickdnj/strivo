@@ -1,6 +1,6 @@
 # Architecture
 
-Strivo is deliberately small: one Python service and one web page, running on a computer in your home.
+StriVo is deliberately small: one Python service and one web page, running on a computer in your home.
 
 ```mermaid
 flowchart TB
@@ -10,7 +10,7 @@ flowchart TB
     A3["plex / jellyfin<br/>(webhooks, API)"]
     A4["roku<br/>(ECP, experimental)"]
   end
-  subgraph core["Strivo core"]
+  subgraph core["StriVo core"]
     COL["Collector<br/>turns 'now playing' into watch sessions"]
     LIB["Library<br/>matches titles to shows and movies (TMDB)"]
     Q["Queue & Daily<br/>what you're watching, what's new"]
@@ -83,7 +83,7 @@ One data folder (`/data` in Docker, `~/.local/share/strivo` otherwise, or `--dat
 | `secrets.json` | TMDB key and media-server tokens (file mode 0600; never served by the API) |
 | `strivo.db` | Your history, kept forever: one row per change in what a box reported (SQLite; `store.py`). `strivo export` writes it all out as JSON Lines |
 | `events.jsonl` | History from older versions (and NiVo). Imported into `strivo.db` automatically, then left as it was |
-| `pyatv.json`, `adbkey` | Apple TV pairing credentials; this Strivo's ADB identity |
+| `pyatv.json`, `adbkey` | Apple TV pairing credentials; this StriVo's ADB identity |
 | everything else | Queue, Saved list, picks, feedback, TMDB cache |
 
 Back up the folder and you have everything.

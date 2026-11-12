@@ -1,7 +1,7 @@
 """Jellyfin (and Emby, which shares the API). Exact title, episode and position for every client.
 
 Two ways in, use either or both:
-- **API polling** (default): Strivo asks the server's /Sessions endpoint every few seconds. Needs an API key
+- **API polling** (default): StriVo asks the server's /Sessions endpoint every few seconds. Needs an API key
   (Dashboard > API Keys > +).
 - **Webhooks** (optional, instant): install the free Webhook plugin, add a "Generic" destination pointing to
   http://<strivo>:<port>/api/webhook/jellyfin with the template shown in the setup wizard.
@@ -55,7 +55,7 @@ class JellyfinAdapter(MediaServerAdapter):
 
     def headers_for(self, token: str) -> dict:
         return {"Accept": "application/json",
-                "Authorization": f'MediaBrowser Client="Strivo", Device="Strivo", DeviceId="strivo", '
+                "Authorization": f'MediaBrowser Client="StriVo", Device="StriVo", DeviceId="strivo", '
                                  f'Version="0.1", Token="{token}"'}
 
     def headers(self, device: Device) -> dict:

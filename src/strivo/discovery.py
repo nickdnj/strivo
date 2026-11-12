@@ -63,7 +63,7 @@ class LocalName:
             from zeroconf import ServiceInfo, Zeroconf
             ip = local_ip()
             self.zc = Zeroconf()
-            self.info = ServiceInfo("_http._tcp.local.", f"Strivo._http._tcp.local.",
+            self.info = ServiceInfo("_http._tcp.local.", f"StriVo._http._tcp.local.",
                                     addresses=[socket.inet_aton(ip)], port=self.port,
                                     properties={"path": "/"}, server=f"{self.hostname}.local.")
             self.zc.register_service(self.info, allow_name_change=True)

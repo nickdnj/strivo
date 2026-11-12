@@ -1,6 +1,6 @@
 """Plex Media Server. Exact title, episode and position for every Plex client.
 
-- **API polling** (default): Strivo reads /status/sessions every few seconds. Needs your server's X-Plex-Token
+- **API polling** (default): StriVo reads /status/sessions every few seconds. Needs your server's X-Plex-Token
   (https://support.plex.tv/articles/204059436). Works without Plex Pass.
 - **Webhooks** (optional, instant, needs Plex Pass): Plex Web > Settings > Webhooks > add
   http://<strivo>:<port>/api/webhook/plex
@@ -39,7 +39,7 @@ class PlexAdapter(MediaServerAdapter):
     token_hint = "your X-Plex-Token (support.plex.tv/articles/204059436)"
 
     def headers_for(self, token: str) -> dict:
-        h = {"Accept": "application/json", "X-Plex-Product": "Strivo", "X-Plex-Client-Identifier": "strivo"}
+        h = {"Accept": "application/json", "X-Plex-Product": "StriVo", "X-Plex-Client-Identifier": "strivo"}
         if token:
             h["X-Plex-Token"] = token
         return h

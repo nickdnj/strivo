@@ -1,4 +1,4 @@
-# Strivo: one small Python service. Run it with host networking so it can find your boxes:
+# StriVo: one small Python service. Run it with host networking so it can find your boxes:
 #   docker run -d --name strivo --network host --restart unless-stopped -v strivo-data:/data ghcr.io/nickdnj/strivo
 FROM python:3.12-slim
 

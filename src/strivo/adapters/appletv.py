@@ -29,7 +29,7 @@ def _enum_name(v) -> str | None:
 
 
 def playing_to_np(p, app=None) -> NowPlaying:
-    """Convert a pyatv Playing (+ App) into Strivo's NowPlaying."""
+    """Convert a pyatv Playing (+ App) into StriVo's NowPlaying."""
     state = _STATE.get(_enum_name(p.device_state), IDLE)
     return NowPlaying(
         state=state,
@@ -102,7 +102,7 @@ class AppleTVAdapter(Adapter):
                 continue
             if svc.pairing.name == "NotSupported":
                 continue
-            handler = await pyatv.pair(conf, proto, loop, storage=storage, name="Strivo")
+            handler = await pyatv.pair(conf, proto, loop, storage=storage, name="StriVo")
             try:
                 await handler.begin()
                 if handler.device_provides_pin:

@@ -3,7 +3,7 @@
 > **Status:** first version built (Sports tab, filters, where to watch, follow teams, Play on TV). Learned teams, games in history and local channels by ZIP are next. See the [roadmap](ROADMAP.md) (Phase 3¾).
 
 Live sports have scattered across more services than shows and movies have. One week of NFL games airs on Fox, CBS,
-NBC, ESPN, NFL Network, Prime Video, Peacock and Netflix. Nobody can remember where tonight's game is. Strivo already
+NBC, ESPN, NFL Network, Prime Video, Peacock and Netflix. Nobody can remember where tonight's game is. StriVo already
 knows which services you pay for and can open apps on your TV, so it can answer the one question sports fans ask:
 **"What's on right now, and where can I watch it?"**
 
@@ -22,7 +22,7 @@ knows which services you pay for and can open apps on your TV, so it can answer 
 
 ## Fully automatic, here too
 
-- **Your teams are learned, not typed.** When Strivo sees you watching a game (most live-TV apps report the matchup as
+- **Your teams are learned, not typed.** When StriVo sees you watching a game (most live-TV apps report the matchup as
   the title), it counts it toward that team. After a few games the team shows up in **My teams** on its own. You can
   still add or remove teams by hand.
 - **Watch history includes games.** A game you watched shows up in history as the matchup and final score, not

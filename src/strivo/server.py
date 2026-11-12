@@ -1,7 +1,7 @@
 """The web server: the phone app, its JSON API, the setup wizard API and media-server webhooks.
 
 Standard library only (ThreadingHTTPServer). Adapter work runs on the collector's asyncio loop.
-Strivo is meant for your home network: there are no accounts, so don't expose this port to the internet.
+StriVo is meant for your home network: there are no accounts, so don't expose this port to the internet.
 """
 from __future__ import annotations
 
@@ -100,10 +100,10 @@ class App:
         ev, self.tracker.events = self.tracker.events, []
         for e in ev:
             if e["to"] == "degraded":
-                self.core.notify(f"Strivo: {e['app']} stopped reporting titles",
-                                 "Strivo will look for a fix and tell you when it's working again.")
+                self.core.notify(f"StriVo: {e['app']} stopped reporting titles",
+                                 "StriVo will look for a fix and tell you when it's working again.")
             elif e["to"] == "recovered":
-                self.core.notify(f"Strivo: {e['app']} is tracking again", "The fix worked.")
+                self.core.notify(f"StriVo: {e['app']} is tracking again", "The fix worked.")
 
     def custom_build(self, cat, f):
         """A one-off What to Watch list with filters `f` (the saved defaults stay as they are)."""
@@ -202,7 +202,7 @@ def make_handler(app: App):
     core = app.core
 
     class H(BaseHTTPRequestHandler):
-        server_version = "Strivo/" + __version__
+        server_version = "StriVo/" + __version__
 
         def log_message(self, fmt, *args):
             log.debug("%s %s", self.address_string(), fmt % args)
@@ -472,8 +472,8 @@ def serve(data_dir, host: str = "0.0.0.0", port: int = 8091, advertise: bool = T
     name = LocalName(port) if advertise else None
     if name:
         name.start()
-    log.info("Strivo %s on http://%s:%s (data: %s)", __version__, host, port, app.data.path)
-    print(f"Strivo is running. Open http://strivo.local:{port} (or http://<this computer's IP>:{port}) on your phone.",
+    log.info("StriVo %s on http://%s:%s (data: %s)", __version__, host, port, app.data.path)
+    print(f"StriVo is running. Open http://strivo.local:{port} (or http://<this computer's IP>:{port}) on your phone.",
           flush=True)
     try:
         httpd.serve_forever()

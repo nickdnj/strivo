@@ -1,14 +1,14 @@
 # Self-healing compatibility
 
 Streaming apps change what they tell the box, often without notice. An app update renames a field or drops the
-episode number, and tracking quietly stops. Strivo assumes this **will** happen. It watches for it, looks for a
+episode number, and tracking quietly stops. StriVo assumes this **will** happen. It watches for it, looks for a
 fix, proves the fix worked, and tells you, so nobody in the house has to do maintenance.
 
 ## The principle
 
 **Self-healing by design.** The parts of each integration that apps break are kept as *data* (a versioned rules
-file), not code. Most breakage can be fixed by publishing a new rules file, which every Strivo picks up on its
-daily check. Strivo never downloads or runs code on its own.
+file), not code. Most breakage can be fixed by publishing a new rules file, which every StriVo picks up on its
+daily check. StriVo never downloads or runs code on its own.
 
 ## The loop
 
@@ -19,23 +19,23 @@ flowchart LR
   R -. maintainers publish rules .-> C
 ```
 
-1. **Detect.** For every box and every app, Strivo keeps a health state (below). An app is *degraded* when it's
+1. **Detect.** For every box and every app, StriVo keeps a health state (below). An app is *degraded* when it's
    seen playing but stops reporting titles that the rules (or its own past) say it should send.
    **Not watching is never "broken".** Only actual playback counts, and an app must come up empty in three
    separate sessions before it's flagged, so movies, menus and ads don't trigger false alarms.
 2. **Diagnose.** Deterministic rules explain the likely cause and next steps (Tier 1, below).
-3. **Check for a fix.** Once a day (with back-off and caching, plus a "Check now" button) Strivo asks the project's
-   GitHub releases for the newest rules file and Strivo version.
-4. **Update.** A newer rules file is checked (checksum, schema, size, every regex compiles, minimum Strivo version,
+3. **Check for a fix.** Once a day (with back-off and caching, plus a "Check now" button) StriVo asks the project's
+   GitHub releases for the newest rules file and StriVo version.
+4. **Update.** A newer rules file is checked (checksum, schema, size, every regex compiles, minimum StriVo version,
    strictly newer) and then installed, offered, or ignored according to your setting. The previous copy is kept for
-   one-tap rollback, and a damaged file always falls back to the copy bundled with Strivo. **A newer Strivo
-   *version* is only announced; Strivo never installs code.**
+   one-tap rollback, and a damaged file always falls back to the copy bundled with StriVo. **A newer StriVo
+   *version* is only announced; StriVo never installs code.**
 5. **Verify.** Installing a fix proves nothing. A degraded app becomes *verifying* and only becomes *recovered*
    when a real title comes through again.
 6. **Tell you.** Only real changes: "Hulu stopped reporting titles", "A fix was installed", "Hulu is tracking
    again". Never a daily "still broken". (Notifications go to the optional notify URL in Settings.)
-7. **Contribute (opt-in).** For problems that don't heal, Strivo prepares a **prefilled GitHub issue link**. You
-   see exactly what it contains, and you submit it yourself. Strivo holds no GitHub token and posts nothing.
+7. **Contribute (opt-in).** For problems that don't heal, StriVo prepares a **prefilled GitHub issue link**. You
+   see exactly what it contains, and you submit it yourself. StriVo holds no GitHub token and posts nothing.
 
 ## Health states
 
@@ -44,7 +44,7 @@ flowchart LR
 | Box | **healthy** | Reachable, and none of its apps is degraded |
 | | **degraded** | Reachable, but an app on it stopped reporting titles |
 | | **offline** | Can't be reached (off, asleep, network changed, debugging switched off) |
-| | **unpaired** | Answered but refused Strivo's credentials: pair it again |
+| | **unpaired** | Answered but refused StriVo's credentials: pair it again |
 | | **paused** | You paused it in Devices |
 | App | **healthy** | Reports what it's expected to |
 | | **degraded** | Seen playing without titles in 3+ sessions when titles are expected |
@@ -53,7 +53,7 @@ flowchart LR
 | | **app-only** | A known limit (e.g. Netflix on Apple TV): not a failure, nothing to fix |
 | | **unknown** | Not enough evidence yet |
 
-Strivo also records when each app was last good, and the Strivo, rules and box OS versions at that time.
+StriVo also records when each app was last good, and the StriVo, rules and box OS versions at that time.
 
 See it in **More › Settings › Health**, or run:
 
@@ -91,7 +91,7 @@ push rules) is tracked as a follow-up issue.
 | Setting | Default | |
 |---|---|---|
 | Compatibility fixes (`rules_updates`) | **Install automatically** | or *Ask me first*, or *Don't check* |
-| Daily check (`update_checks`) | on | One anonymous request to `api.github.com`, User-Agent `Strivo/<version>` |
+| Daily check (`update_checks`) | on | One anonymous request to `api.github.com`, User-Agent `StriVo/<version>` |
 | Diagnosis tier (`diagnosis.tier`) | 1 | See below |
 
 ## Intelligence tiers
@@ -110,11 +110,11 @@ input always goes through `redact()` (addresses, MACs, long ids and credentials 
 - **Opt-in for anything that leaves the house** beyond the daily anonymous fix check (which you can turn off).
 - **Your viewing history is never sent.** Not to GitHub, not to a model, not to the project.
 - Reports contain only: adapter, platform, OS family, the app's public service name (unknown apps are just
-  "another app"), failure type, expected vs observed, days since it last worked, Strivo and rules versions.
+  "another app"), failure type, expected vs observed, days since it last worked, StriVo and rules versions.
   **No titles, names, addresses, device ids, serials, accounts or tokens.** Tests enforce this.
 - Before offering a new report, pressing **Check for an existing report** runs one anonymous GitHub search with just
-  the app's public name, the platform and the failure type. If an open `compatibility` issue already matches, Strivo
+  the app's public name, the platform and the failure type. If an open `compatibility` issue already matches, StriVo
   links to it so you can 👍 it instead of filing a duplicate. If GitHub is slow or unreachable, you get the normal
   report.
-- **No ads, no selling data, no covert telemetry.** Community diagnostics exist to make Strivo work in more homes.
+- **No ads, no selling data, no covert telemetry.** Community diagnostics exist to make StriVo work in more homes.
   Every report is previewed and submitted by a person.

@@ -52,7 +52,7 @@ def test_install_validate_and_rollback(rules, data):
     with pytest.raises(rules_mod.RulesError, match="bad regex"):
         rules.install(bad, sha(bad))
     future = newer_rules(min_strivo="99.0")
-    with pytest.raises(rules_mod.RulesError, match="needs Strivo"):
+    with pytest.raises(rules_mod.RulesError, match="needs StriVo"):
         rules.install(future, sha(future))
     code = newer_rules()
     code_like = json.loads(code)
@@ -152,7 +152,7 @@ def test_detect_fix_verify_recover(data, rules):
     s = up.check()
     assert "installed" in s["rules_status"] and rules.version == "2099.1.1.1"
     assert h.apps()[0]["state"] == "verifying"                                  # an update alone proves nothing
-    assert all(c[1]["User-Agent"].startswith("Strivo/") and "Authorization" not in c[1] for c in gh.calls)
+    assert all(c[1]["User-Agent"].startswith("StriVo/") and "Authorization" not in c[1] for c in gh.calls)
     h.observe(tv, broken, now=time.time())                                      # real playback, now parsed
     assert h.apps()[0]["state"] == "recovered"
     assert any("fix" in n for n in notes)

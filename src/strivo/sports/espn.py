@@ -16,7 +16,7 @@ BASE = "https://site.api.espn.com/apis/site/v2/sports/"
 def http_get(url: str, timeout: float = 12) -> dict:
     from ..net import ssl_context
     req = urllib.request.Request(url, headers={"Accept": "application/json", "Accept-Encoding": "gzip",
-                                               "User-Agent": "Strivo"})
+                                               "User-Agent": "StriVo"})
     with urllib.request.urlopen(req, timeout=timeout, context=ssl_context()) as r:
         raw = r.read()
         if r.headers.get("Content-Encoding") == "gzip" or raw[:2] == b"\x1f\x8b":
@@ -31,7 +31,7 @@ class ESPN:
         self.fetch = fetch or http_get
 
     def day(self, path: str, yyyymmdd: str) -> list[dict]:
-        """Every game in one league on one day, as plain Strivo game dicts."""
+        """Every game in one league on one day, as plain StriVo game dicts."""
         d = self.fetch(f"{BASE}{path}/scoreboard?dates={yyyymmdd}&limit=300")
         return [g for g in (parse_event(e) for e in d.get("events") or []) if g]
 

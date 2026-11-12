@@ -1,7 +1,7 @@
 """Google TV, Android TV and Fire TV, via ADB over the home network (adb-shell, pure Python).
 
 One-time setup on the TV: Settings > Developer options > turn on "Network debugging" (Android TV / Fire TV:
-"ADB debugging"), then press **Allow** when the TV asks whether to trust Strivo.
+"ADB debugging"), then press **Allow** when the TV asks whether to trust StriVo.
 
 What's playing comes from Android's media sessions (`dumpsys media_session`): every app that shows a "now
 playing" card or responds to the remote's play/pause keys publishes one, with the title and usually a subtitle.

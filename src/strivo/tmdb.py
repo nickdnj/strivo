@@ -1,4 +1,4 @@
-"""TMDB client. The only outside service Strivo talks to, and it only ever sends titles and ids.
+"""TMDB client. The only outside service StriVo talks to, and it only ever sends titles and ids.
 
 Accepts either kind of TMDB credential: a v4 "API Read Access Token" (long, starts with "eyJ") or a v3 API key.
 Tests pass a fake `transport` so they never touch the network.

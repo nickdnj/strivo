@@ -1,10 +1,10 @@
 # Code of Conduct
 
-Strivo is a friendly project about watching TV. Let's keep it that way.
+StriVo is a friendly project about watching TV. Let's keep it that way.
 
 ## Our pledge
 
-We want participation in Strivo to be welcoming and harassment-free for everyone, whatever their experience level, background, identity or the TV they own.
+We want participation in StriVo to be welcoming and harassment-free for everyone, whatever their experience level, background, identity or the TV they own.
 
 ## Expected behavior
 
@@ -19,7 +19,7 @@ We want participation in Strivo to be welcoming and harassment-free for everyone
 - Discriminatory jokes or language
 - Posting someone else's private information
 - Sharing ways to get around paywalls, DRM, or streaming services' terms
-- Spam or self-promotion unrelated to Strivo
+- Spam or self-promotion unrelated to StriVo
 
 ## Enforcement
 

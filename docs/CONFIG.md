@@ -15,7 +15,7 @@ the few things that aren't (yet), and the environment variables.
 
 ## `config.json`
 
-Lives in the data folder. Edit it with Strivo stopped. Keys you might want:
+Lives in the data folder. Edit it with StriVo stopped. Keys you might want:
 
 ```jsonc
 {

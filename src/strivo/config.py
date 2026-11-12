@@ -1,4 +1,4 @@
-"""One data folder holds everything Strivo knows: config, secrets, history, caches.
+"""One data folder holds everything StriVo knows: config, secrets, history, caches.
 
 Layout (copy the folder and you have everything):
 
@@ -7,7 +7,7 @@ Layout (copy the folder and you have everything):
     strivo.db          the history: every "now playing" moment from every box, kept forever (SQLite)
     events.jsonl       history from older versions; imported into strivo.db once, then left alone
     pyatv.json         Apple TV pairing credentials (pyatv storage)
-    adbkey, adbkey.pub this Strivo's ADB identity for Google TV / Android TV / Fire TV
+    adbkey, adbkey.pub this StriVo's ADB identity for Google TV / Android TV / Fire TV
     *.json             queue, wishlist, picks, feedback and the TMDB cache
 """
 from __future__ import annotations

@@ -39,7 +39,7 @@ def cmd_setup(args):
     STREAMING = streaming()
     from .tmdb import TMDB
     data = _data(args)
-    print(f"Strivo setup · data folder: {data.path}\n")
+    print(f"StriVo setup · data folder: {data.path}\n")
 
     async def run():
         col = Collector(data, all_adapters(data), log_events=False)
@@ -107,7 +107,7 @@ def cmd_setup(args):
                                if x.isdigit() and 1 <= int(x) <= len(STREAMING)]
     core.settings_save(body)
     data.update_config(lambda c: c.__setitem__("setup_done", True))
-    print("\nDone. Start Strivo with:  strivo serve")
+    print("\nDone. Start StriVo with:  strivo serve")
 
 
 def cmd_probe(args):
@@ -202,7 +202,7 @@ def cmd_doctor(args):
         if args.report:
             r = app.report_url(args.report)
             print("This report contains only:", json.dumps(r["fields"]))
-            print("Review it and submit it yourself (Strivo never posts anything):\n" + r["url"])
+            print("Review it and submit it yourself (StriVo never posts anything):\n" + r["url"])
             return
         doc = app.doctor()
         if args.json:
@@ -229,7 +229,7 @@ def cmd_doctor(args):
         print(f"Last check for fixes: {when}" + (f" · {u.get('status')}" if u.get("status") else "")
               + (f" · {u['error']}" if u.get("error") else ""))
         if u.get("code_update"):
-            print(f"Strivo {u['latest_version']} is available: {u.get('release_url', '')}")
+            print(f"StriVo {u['latest_version']} is available: {u.get('release_url', '')}")
         if u.get("rules_available"):
             print(f"Rules {u['rules_available']} are ready: run `strivo doctor --apply`")
         for p in doc["problems"]:
@@ -261,7 +261,7 @@ def cmd_export(args):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(prog="strivo", description="Strivo: your viewing history, automatically.")
+    ap = argparse.ArgumentParser(prog="strivo", description="StriVo: your viewing history, automatically.")
     ap.add_argument("--version", action="version", version=f"strivo {__version__}")
     ap.add_argument("-v", "--verbose", action="store_true")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -273,7 +273,7 @@ def main(argv=None):
         p.set_defaults(fn=fn)
         return p
 
-    p = add("serve", cmd_serve, "run Strivo (collector + web app)")
+    p = add("serve", cmd_serve, "run StriVo (collector + web app)")
     p.add_argument("--host", default=os.environ.get("STRIVO_HOST", "0.0.0.0"))
     p.add_argument("--port", type=int, default=int(os.environ.get("STRIVO_PORT", "8091")))
     p.add_argument("--no-mdns", action="store_true", help="don't advertise strivo.local")

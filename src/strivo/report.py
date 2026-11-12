@@ -1,6 +1,6 @@
 """Opt-in compatibility reports: a prefilled GitHub issue link the user reviews and submits themselves.
 
-Strivo never posts anything and holds no GitHub token. The report carries only: adapter, platform, OS family,
+StriVo never posts anything and holds no GitHub token. The report carries only: adapter, platform, OS family,
 the app's public service name, the failure type, and versions. Never titles, names, addresses, device ids,
 serials, accounts or tokens. `sanitize()` enforces that, and tests check it.
 """
@@ -22,7 +22,7 @@ REPO = "nickdnj/strivo"
 SEARCH_CACHE_SECONDS = 300
 SEARCH_TIMEOUT = 5
 FAILURES = {"degraded": "Titles stopped coming through", "verifying": "Still no titles after a rules update",
-            "offline": "Box can't be reached", "unpaired": "Box refused Strivo's credentials"}
+            "offline": "Box can't be reached", "unpaired": "Box refused StriVo's credentials"}
 _PLATFORM = {"appletv": "Apple TV", "android": "Google TV / Android TV", "firetv": "Fire TV", "roku": "Roku",
              "plex": "Plex", "jellyfin": "Jellyfin"}
 _search_cache = {}
@@ -103,7 +103,7 @@ def find_existing_issue(entry: dict, failure: str, repo: str = REPO, fetch=None)
     query = " ".join((f"repo:{repo}", "is:issue", "is:open", "label:compatibility",
                       f'"{what}"', f'"{s["platform"]}"', f'"{description}"'))
     url = "https://api.github.com/search/issues?" + urllib.parse.urlencode({"q": query, "per_page": 10})
-    headers = {"User-Agent": f"Strivo/{__version__}", "Accept": "application/vnd.github+json"}
+    headers = {"User-Agent": f"StriVo/{__version__}", "Accept": "application/vnd.github+json"}
     result = None
     try:
         code, _, body = fetch(url, headers)
@@ -134,7 +134,7 @@ def issue_url(entry: dict, failure: str, repo: str = REPO) -> tuple[str, dict]:
     s = sanitize(entry, failure)
     what = s["app"] or s["platform"]
     title = f"[compat] {what} on {s['platform']}: {FAILURES.get(failure, failure).lower()}"
-    lines = ["**Automatic compatibility report** (prepared by Strivo, reviewed and submitted by a person).", "",
+    lines = ["**Automatic compatibility report** (prepared by StriVo, reviewed and submitted by a person).", "",
              "| | |", "|---|---|"]
     for k in ("adapter", "platform", "os", "app", "failure", "expected", "observed", "days_since_last_good",
               "strivo", "rules"):

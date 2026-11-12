@@ -1,6 +1,6 @@
-# Testing Strivo (without owning every box)
+# Testing StriVo (without owning every box)
 
-Strivo talks to many kinds of devices, and no one owns them all. This page explains how to test each adapter with
+StriVo talks to many kinds of devices, and no one owns them all. This page explains how to test each adapter with
 software stand-ins, and records what has actually been checked so far. If you own a real device in the
 "emulated only" column, a `strivo probe` report from it is the most useful thing you can contribute.
 
@@ -38,7 +38,7 @@ the real Android OS in Google's emulator, the real Jellyfin and Plex servers in 
 | Plex | ✅ (GDM) | ✅ without a token on an allowed network | ✅ series, season, episode, position, per client | n/a | **Docker**: Plex Media Server 1.43.5 (`plexinc/pms-docker:latest`), unclaimed. **Webhooks not verified** (need Plex Pass). |
 | Roku | ✅ SSDP | ✅ | ✅ channel, state, position; title only when the channel shares it | ✅ launch, keypress | **Fake ECP server** only. Needs a tester with a real Roku. |
 
-\* Strivo was not allowed to pair with or launch apps on the household's Apple TVs during development. Pairing and
+\* StriVo was not allowed to pair with or launch apps on the household's Apple TVs during development. Pairing and
 launching use the same pyatv calls as the household app, which has done both daily since October 2026, and are
 covered by fake-device tests.
 † The emulator isn't on the LAN, so mDNS discovery (`_androidtvremote2._tcp`, `_amzn-wplay._tcp`) wasn't exercised;
@@ -50,7 +50,7 @@ container.
 ## Self-healing
 
 `tests/test_selfheal.py` runs the whole loop with a fake GitHub: an app (Max) stops filling the title after an
-"update", Strivo marks it degraded after three sessions, the daily check installs a fixed rules file, the app goes
+"update", StriVo marks it degraded after three sessions, the daily check installs a fixed rules file, the app goes
 to *verifying*, and the next real playback marks it *recovered*. It also covers rejected rules (bad checksum, bad
 regex, unknown sections, too-new), rollback, back-off, "ask" mode, and that reports contain nothing personal.
 `strivo doctor --check` was also run against the real GitHub API (no releases yet → reported cleanly).
@@ -77,7 +77,7 @@ adb -s emulator-5580 tcpip 5555
 adb -s emulator-5580 forward tcp:6555 tcp:5555
 ```
 
-Then add a Google TV in Strivo at `127.0.0.1`, port `6555`. Strivo connects with its own key, so the emulator shows
+Then add a Google TV in StriVo at `127.0.0.1`, port `6555`. StriVo connects with its own key, so the emulator shows
 the real "Allow debugging?" prompt: tick **Always allow** and press **Allow** (click in the emulator window, or
 `adb shell input tap` on the button). `strivo now` and `strivo probe --minutes 1` should then report VLC with the show
 and episode.
@@ -89,7 +89,7 @@ docker run -d --name jf -p 8096:8096 -v ./jf-config:/config -v ./media:/media:ro
 ```
 
 Finish the startup wizard, add a TV library on `/media/shows`, create an API key (Dashboard › API Keys) and add the
-server in Strivo. Any Jellyfin client (or the `/Sessions/Playing` API) playing an episode shows up within a poll.
+server in StriVo. Any Jellyfin client (or the `/Sessions/Playing` API) playing an episode shows up within a poll.
 For webhooks, install **Webhook** from the plugin catalog and add a Generic destination to
 `http://<strivo>:8091/api/webhook/jellyfin` with the template from the setup wizard.
 
@@ -103,7 +103,7 @@ docker run -d --name pms -p 32400:32400 -e ALLOWED_NETWORKS=172.16.0.0/12 -v ./m
 ```
 
 An unclaimed server needs no Plex account. Unauthenticated access only works from networks in `ALLOWED_NETWORKS`; on
-Docker Desktop the easiest way is to run Strivo inside the server's network
+Docker Desktop the easiest way is to run StriVo inside the server's network
 (`docker run --network container:pms … ghcr.io/nickdnj/strivo`). A client reporting playback
 (`GET /:/timeline?ratingKey=…&state=playing…` with `X-Plex-Client-Identifier`) appears in `/status/sessions`.
 
@@ -113,10 +113,10 @@ Docker Desktop the easiest way is to run Strivo inside the server's network
 python tools/fake_roku.py --port 8060
 ```
 
-Add a Roku at `127.0.0.1` in Strivo. The fake cycles between Netflix (no title, like most channels), a channel that
+Add a Roku at `127.0.0.1` in StriVo. The fake cycles between Netflix (no title, like most channels), a channel that
 reports a title, and the home screen, and prints every launch it receives.
 
 ### Apple TV
 
 pyatv ships a fake Apple TV in its source tree (`scripts/fake_device.py --mrp --companion --demo`) that is useful for
-local development. Strivo's own tests fake pyatv's interfaces instead, so they run anywhere.
+local development. StriVo's own tests fake pyatv's interfaces instead, so they run anywhere.

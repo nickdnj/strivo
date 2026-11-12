@@ -9,7 +9,7 @@ description = "Remembers everything you watch, across every streaming app, autom
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
-authors = [{ name = "Strivo contributors" }]
+authors = [{ name = "StriVo contributors" }]
 classifiers = [
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",

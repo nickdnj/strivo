@@ -1,11 +1,11 @@
 # Roadmap
 
-Strivo started as a personal project, an Apple TV watch log with a TiVo-style phone app, used every day in one household. This roadmap takes it from "works in one living room" to "works in yours".
+StriVo started as a personal project, an Apple TV watch log with a TiVo-style phone app, used every day in one household. This roadmap takes it from "works in one living room" to "works in yours".
 
 The guiding rules:
 
 1. **Fully automatic or not at all.** We only support setups that report what's playing by themselves.
-2. **Your data stays home.** No Strivo cloud, ever.
+2. **Your data stays home.** No StriVo cloud, ever.
 3. **Normal people can install it.** If it needs a command line, we're not done.
 
 ---
@@ -44,14 +44,14 @@ Turn the household version into a public codebase.
 
 ## Phase 3½ · Self-healing compatibility
 
-Apps will change what they report; Strivo should fix itself. Design: [SELF-HEALING.md](SELF-HEALING.md).
+Apps will change what they report; StriVo should fix itself. Design: [SELF-HEALING.md](SELF-HEALING.md).
 
 - [x] Fragile parts as data: app ids, title rules, deep links and expectations in a versioned `compat.json`
 - [x] Health states per box and per app (healthy, degraded, offline, unpaired), with last-good versions
 - [x] `strivo doctor` and a Health section in Settings
 - [x] Daily check of GitHub releases for rules fixes (validated, rollback) and new versions (announce only)
 - [x] Verify recovery from real playback, notify only on real changes
-- [x] Opt-in, sanitized, prefilled GitHub report (no token, nothing posted by Strivo)
+- [x] Opt-in, sanitized, prefilled GitHub report (no token, nothing posted by StriVo)
 - [ ] Signed rules (maintainer key) on top of the checksum
 - [ ] Probe reports that propose a rules change
 - [ ] Expectations for every platform, filled from probe reports

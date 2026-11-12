@@ -1,12 +1,12 @@
-"""Daily check for fixes: new compatibility rules and new Strivo releases, from the project's GitHub releases.
+"""Daily check for fixes: new compatibility rules and new StriVo releases, from the project's GitHub releases.
 
 - **Rules** (`compat.json` + `compat.json.sha256` attached to a release) are data. Depending on the
   `rules_updates` setting they're applied automatically (default), offered ("ask"), or ignored ("off"). They're
   validated before use and the previous copy is kept for rollback.
-- **Code** updates are never installed by Strivo. A newer release is announced; you update the container or
+- **Code** updates are never installed by StriVo. A newer release is announced; you update the container or
   package yourself.
 - What's sent: one anonymous HTTPS request to api.github.com (and the asset downloads). No history, no device
-  names, no identifiers. The User-Agent is just "Strivo/<version>".
+  names, no identifiers. The User-Agent is just "StriVo/<version>".
 """
 from __future__ import annotations
 
@@ -59,7 +59,7 @@ class UpdateChecker:
         c = self.data.config()
         repo = c.get("update_repo") or DEFAULT_REPO
         mode = c.get("rules_updates", "auto")
-        hdr = {"User-Agent": f"Strivo/{__version__}", "Accept": "application/vnd.github+json"}
+        hdr = {"User-Agent": f"StriVo/{__version__}", "Accept": "application/vnd.github+json"}
         if s.get("etag") and not force:
             hdr["If-None-Match"] = s["etag"]
         s["last_check"] = now
@@ -84,8 +84,8 @@ class UpdateChecker:
         # rules-only releases are tagged rules-YYYY.MM.DD and never count as a code update
         s["code_update"] = bool(re.fullmatch(r"\d+\.\d+(\.\d+)?([.\-]?\w+)?", latest)) and rules_mod.newer(latest, __version__)
         if s["code_update"] and s.get("announced") != latest and self.notify:
-            self.notify("Strivo update available", f"Strivo {latest} is out. Update your container or package "
-                                                    "when convenient; Strivo never updates its own code.")
+            self.notify("StriVo update available", f"StriVo {latest} is out. Update your container or package "
+                                                    "when convenient; StriVo never updates its own code.")
             s["announced"] = latest
         s["status"] = "up to date"
         assets = {a.get("name"): a.get("browser_download_url") for a in rel.get("assets", [])}
@@ -116,7 +116,7 @@ class UpdateChecker:
         r = self.rules.install(raw, sha)
         n = self.health.mark_verifying() if self.health else 0
         if self.notify:
-            self.notify("Strivo installed a compatibility fix",
+            self.notify("StriVo installed a compatibility fix",
                         f"Rules {r['version']} are in place." + (f" Checking {n} app(s) that had stopped reporting titles."
                                                                   if n else ""))
         try:

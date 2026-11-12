@@ -1,14 +1,14 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Strivo</title>
+<title>StriVo</title>
 <meta name="theme-color" content="#0f0e1a">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/pwa/icon-180.png">
 <link rel="icon" type="image/png" href="/pwa/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Strivo">
+<meta name="apple-mobile-web-app-title" content="StriVo">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 :root{--bg:#0f0e1a;--card:#191729;--card2:#23203a;--tx:#ecebf5;--mut:#9a97b3;--acc:#8b7dff;--ok:#22c55e;--warn:#f59e0b;--line:#2c2945;--r:14px;--font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif}
@@ -189,7 +189,7 @@ body.imm #ovtop .fbar{margin:0 0 4px;padding:4px 6px 4px 10px;background:#0006}
 <path d="M180 262 Q204 240 228 262" stroke="#fff" stroke-width="14" fill="none" stroke-linecap="round" opacity="0"><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;.66;.67;1" dur="1.6s" fill="freeze"/></path>
 <ellipse cx="306" cy="258" rx="22" ry="28" fill="#fff"/><circle cx="312" cy="264" r="10" fill="#17123f"/>
 <path d="M178 312 Q256 378 334 312" stroke="#fff" stroke-width="18" fill="none" stroke-linecap="round"/>
-</g></svg><div class="wm">Strivo</div></div>
+</g></svg><div class="wm">StriVo</div></div>
 <script>(function(){var s=document.getElementById("splash"),seen=false;try{seen=sessionStorage.getItem("strivo-splash")=="1";sessionStorage.setItem("strivo-splash","1")}catch(e){}
 var go=function(){s.classList.add("out");setTimeout(function(){s.remove()},400)};if(seen){s.remove();return}s.onclick=go;setTimeout(go,1500)})()</script>
 <header><h1>Watching</h1><div><button class="btn" id="modebtn"></button> <button class="btn" id="snd" hidden></button> <button class="btn" id="theme" hidden></button></div></header>
@@ -261,7 +261,7 @@ let WL=[],wtimer=null;
 const fdate=d=>d?new Date(d+"T12:00:00").toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}):"";
 function provGroups(w){const grp=(label,kinds)=>{const ps=(w.providers||[]).filter(p=>kinds.includes(p.kind));return ps.length?'<div class="s" style="margin-top:8px">'+label+'</div><div>'+ps.map(p=>'<span class="chip'+(p.mine&&kinds[0]=="flatrate"?' mine':'')+'">'+esc(p.name)+'</span>').join("")+'</div>':''};
  const c=grp("Stream (included with a subscription)",["flatrate"])+grp("Free with ads",["free","ads"])+grp("Rent",["rent"])+grp("Buy",["buy"]);
- return c||'<div class="s" style="margin-top:8px">Not streaming in your country yet. Strivo can tell you when it lands on one of your services (Settings › Notifications).</div>'}
+ return c||'<div class="s" style="margin-top:8px">Not streaming in your country yet. StriVo can tell you when it lands on one of your services (Settings › Notifications).</div>'}
 function wishDetail(w){immOff();const m=$("#main");const tv=w.type=="tv";
  const rows=[["Type",tv?"TV show":"Movie"],tv?["Premiered",fdate(w.first_air)]:["Released",fdate(w.release)],tv?["Network",(w.networks||[]).join(", ")]:["Studio",(w.studios||[]).join(", ")],
   tv?["Seasons",w.seasons?w.seasons+(w.episodes?" ("+w.episodes+" episodes)":""):""]:["Runtime",w.runtime?w.runtime+" min":""],["Status",w.status],tv?["Last aired",fdate(w.last_air)]:["",""],
@@ -283,7 +283,7 @@ function drawWL(){const el=$("#wlist");if(!el)return;if(mode!="posters")immOff()
  el.innerHTML=WL.length?WL.map((w,wi)=>{const nx=w.next_air?('Next: '+(w.next_ep?esc(w.next_ep)+' · ':'')+(w.network?esc(w.network)+' · ':'')+new Date(w.next_air+"T12:00:00").toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})):"";
   const grp=(label,kinds)=>{const ps=(w.providers||[]).filter(p=>kinds.includes(p.kind));return ps.length?'<div class="s" style="margin-top:5px">'+label+'</div><div>'+ps.map(p=>'<span class="chip'+(p.mine&&kinds[0]=="flatrate"?' mine':'')+'">'+esc(p.name)+'</span>').join("")+'</div>':''};
   const chips=grp("Stream (included with a subscription)",["flatrate"])+grp("Free with ads",["free","ads"])+grp("Rent",["rent"])+grp("Buy",["buy"]);
-  const none=chips?'':'<div class="s" style="margin-top:5px">Not streaming in your country yet. Strivo can tell you when it lands on one of your services (Settings › Notifications).</div>';
+  const none=chips?'':'<div class="s" style="margin-top:5px">Not streaming in your country yet. StriVo can tell you when it lands on one of your services (Settings › Notifications).</div>';
   const more=w.link?'<a class="lnk" target="_blank" rel="noopener" href="'+esc(w.link)+'">All options on JustWatch ›</a>':'';
   const fd=d=>d?new Date(d+"T12:00:00").toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}):"";
   const facts=w.type=="tv"?[w.first_air?'Premiered '+fd(w.first_air):'',(w.networks&&w.networks.length)?w.networks.join(", "):'',w.seasons?w.seasons+' season'+(w.seasons==1?'':'s'):'',w.status||'']:
@@ -340,7 +340,7 @@ function filterSheet(f0){const old=document.querySelector(".tvs");if(old)old.rem
   '<div class="ln"><div>Sort by</div><select id="fs">'+opt(["fit","rating","new"],f.sort,v=>({fit:"Best for you",rating:"Highest rated",new:"Newest"})[v])+'</select></div>'+
   '<button class="btn add" id="fsave" style="width:100%;padding:11px;margin-top:12px">Save as my everyday filters</button>'+
   '<button class="btn" id="fnow" style="width:100%;padding:11px;margin-top:8px">Just for now</button>'+
-  '<div class="note" style="margin-top:6px">Everyday filters shape the list Strivo keeps fresh for you each day. Just for now builds a one-off list and leaves them alone.</div>'+
+  '<div class="note" style="margin-top:6px">Everyday filters shape the list StriVo keeps fresh for you each day. Just for now builds a one-off list and leaves them alone.</div>'+
   '<button class="btn" id="fx" style="width:100%;padding:10px;margin-top:8px">Cancel</button></div>';
   const num=(id,k)=>{d.querySelector(id).onchange=e=>{f[k]=+e.target.value}};num("#fr","min_rating");num("#fv","min_votes");num("#fy","years");num("#fgr","great");
   d.querySelector("#fl").onchange=e=>{f.langs=e.target.value};d.querySelector("#fs").onchange=e=>{f.sort=e.target.value};
@@ -519,7 +519,7 @@ function thumbs(x){return{
  up:(b,s)=>{bloop();b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop");thumbUp(x,s)}}}
 function thumbUp(x,s){const old=document.querySelector(".tvs");if(old)old.remove();const tv=x.type=="tv";
  const d=document.createElement("div");d.className="tvs";d.style.cssText="position:fixed;inset:0;background:#000a;z-index:100;display:flex;align-items:flex-end;justify-content:center";
- d.innerHTML='<div class="fsheet"><div class="t" style="font-size:17px;white-space:normal">👍 '+esc(x.title)+'</div><div class="s" style="margin:4px 0 10px">Strivo will look for more '+(tv?"shows":"movies")+' like this.</div>'+
+ d.innerHTML='<div class="fsheet"><div class="t" style="font-size:17px;white-space:normal">👍 '+esc(x.title)+'</div><div class="s" style="margin:4px 0 10px">StriVo will look for more '+(tv?"shows":"movies")+' like this.</div>'+
   '<button class="btn add" data-u="want" style="display:block;width:100%;padding:12px;margin:6px 0">＋ Add to To Watch<div class="note" style="color:inherit;opacity:.8">Haven\'t seen it yet</div></button>'+
   '<button class="btn" data-u="liked" style="display:block;width:100%;padding:12px;margin:6px 0">I\'ve seen it and liked it<div class="note">Remember it, find more like it</div></button>'+
   '<button class="btn" id="ux" style="width:100%;padding:10px;margin-top:8px">Cancel</button></div>';
@@ -674,7 +674,7 @@ document.addEventListener("click",async e=>{if(!e.target||e.target.id!="hmore")r
 function nowBar(){const n=D&&showNow?Object.entries(D.now):[];$("#now").innerHTML=n.map(([d,v])=>'<div class="nowc"><span class="pulse"></span><div class="grow"><div class="t">'+esc(v.series||v.title)+'</div><div class="s">'+esc(d)+' · '+esc(v.app)+(v.ept?' · '+esc(v.ept):v.ch?' · '+esc(v.ch):'')+'</div></div></div>').join("")}
 function nav(){modeHead();const cur=MORE.some(m=>m[0]==tab)?"more":tab;
  $("#nav").innerHTML=BAR.map(([k,ic,l])=>'<button class="'+(k==cur?"on":"")+'" data-k="'+k+'"><span class="ic">'+ic+'</span>'+l+'</button>').join("");
- const lb=(TABS.find(x=>x[0]==tab)||[0,"Strivo"])[1];$("header h1").textContent=lb;
+ const lb=(TABS.find(x=>x[0]==tab)||[0,"StriVo"])[1];$("header h1").textContent=lb;
  $("#nav").querySelectorAll("button").forEach(b=>b.onclick=()=>{bloop();tab=b.dataset.k;detail=null;sdetail=false;localStorage.setItem("wl_tab",tab);nav();render();window.scrollTo(0,0)})}
 function go(k){tab=k;detail=null;localStorage.setItem("wl_tab",tab);nav();render();window.scrollTo(0,0)}
 async function load(){try{D=await (await fetch("/api/data")).json()}catch(e){}nowBar();const hold=["wish","disc","set","more","dev","sports"].includes(tab)&&document.querySelector("#wlist,#slist,#hlist,#glist,#setp,#morep,#devp,#spp");if(!detail&&!sdetail&&!document.querySelector("#rfeed .sl")&&!hold)render()}
@@ -696,7 +696,7 @@ function spRow(g,i,my,showLg){const sc=spScores&&g.state!="pre";
   '<div class="t" style="white-space:normal">⛳ '+esc(g.name)+'</div>'+(g.state=="in"?'<div class="s">'+esc(g.detail)+'</div>':'')+(sc&&g.leaders.length?'<div class="s">'+g.leaders.slice(0,3).map(l=>esc(l.name)+' '+esc(l.score)).join(" · ")+'</div>':'');
  return '<div class="row sg" data-g="'+i+'"><div class="gm"><div class="grow">'+body+'</div><div class="st'+(g.state=="in"?' live':'')+'">'+spStatus(g)+(showLg?'<div class="lgt">'+esc(g.league_name)+'</div>':'')+'</div></div><div class="wh">'+spWhere(g)+'</div></div>'}
 function drawSports(){const el=$("#spp");if(!el)return;
- if(!SP){el.innerHTML='<div class="empty">Couldn\'t load the sports schedule. Check that Strivo can reach the internet.</div>';return}
+ if(!SP){el.innerHTML='<div class="empty">Couldn\'t load the sports schedule. Check that StriVo can reach the internet.</div>';return}
  const on=SP.leagues.filter(l=>l.on),my=spMy();if(spLg!="all"&&spLg!="my"&&!on.some(l=>l.id==spLg))spLg="all";if(spLg=="my"&&!my.size)spLg="all";
  const isMy=g=>g.teams.some(t=>my.has(spKey(g,t)));
  let gs=SP.games.filter(g=>spLg=="all"?true:spLg=="my"?isMy(g):g.league==spLg);
@@ -711,7 +711,7 @@ function drawSports(){const el=$("#spp");if(!el)return;
   if(nx.length)h+='<div class="day">My teams</div><div class="myt">'+nx.map(g=>'<div class="mc" data-g="'+SP.games.indexOf(g)+'"><div class="t">'+esc(g.short)+'</div><div class="s'+(g.state=="in"?' live':'')+'">'+spStatus(g)+'</div><div class="s">'+esc((g.mine[0]||(g.where[0]||{}).channel||""))+'</div></div>').join("")+'</div>'}
  let any=false;S.forEach(([l,list])=>{if(!list.length)return;any=true;h+='<div class="day">'+l+' · '+list.length+'</div>'+list.slice(0,l=="This week"?120:200).map(g=>spRow(g,SP.games.indexOf(g),my,spLg=="all"||spLg=="my")).join("")});
  if(!any)h+='<div class="empty">'+(spMine?'No games on your services right now. Turn off "On my services" to see everything.':on.length?'No games in the next week.':'Pick some leagues with ⚙︎.')+'</div>';
- if(!(SP.services||[]).length)h+='<div class="s" style="white-space:normal;margin-top:8px">Tip: add your streaming services in More › Settings and Strivo will show which games you can watch.</div>';
+ if(!(SP.services||[]).length)h+='<div class="s" style="white-space:normal;margin-top:8px">Tip: add your streaming services in More › Settings and StriVo will show which games you can watch.</div>';
  h+='<div class="s" style="white-space:normal;margin:14px 0 4px;font-size:11.5px">Schedules from ESPN. Where-to-watch is a best guess for the US and can be off for local games.</div>';
  el.innerHTML=h;
  el.querySelectorAll("[data-lg]").forEach(b=>b.onclick=()=>{bloop();spLg=b.dataset.lg;spTeam="";localStorage.setItem("wl_splg",spLg);localStorage.setItem("wl_spteam","");drawSports();window.scrollTo(0,0)});
@@ -744,7 +744,7 @@ function spLeagues(){const d=spOverlay();const sel=new Set(SP.leagues.filter(l=>
   d.querySelectorAll("[data-l]").forEach(b=>b.onclick=async()=>{bloop();const k=b.dataset.l;sel.has(k)?sel.delete(k):sel.add(k);draw();try{await jpost("/api/sports/prefs",{leagues:[...sel]});sportsPage()}catch(e){toast("Could not save")}});
   d.querySelectorAll("[data-uf]").forEach(b=>b.onclick=async()=>{bloop();const t=SP.teams[+b.dataset.uf];try{const p=await jpost("/api/sports/prefs",{unfollow:{league:t.league,id:t.id}});SP.teams=p.teams;draw();drawSports()}catch(e){toast("Could not save")}})};
  draw()}
-// ---- Setup wizard, Devices page and extra settings (Strivo)
+// ---- Setup wizard, Devices page and extra settings (StriVo)
 let SU=null,wstep=0;
 const KINDS=[["appletv","Apple TV",""],["android","Google TV / Android TV","android"],["android","Fire TV","firetv"],["roku","Roku (experimental)",""],["plex","Plex server",""],["jellyfin","Jellyfin / Emby server",""]];
 const COUNTRIES=[["US","United States"],["CA","Canada"],["GB","United Kingdom"],["IE","Ireland"],["AU","Australia"],["NZ","New Zealand"],["DE","Germany"],["AT","Austria"],["CH","Switzerland"],["FR","France"],["BE","Belgium"],["NL","Netherlands"],["ES","Spain"],["PT","Portugal"],["IT","Italy"],["SE","Sweden"],["NO","Norway"],["DK","Denmark"],["FI","Finland"],["PL","Poland"],["BR","Brazil"],["MX","Mexico"],["AR","Argentina"],["IN","India"],["JP","Japan"],["KR","South Korea"],["ZA","South Africa"]];
@@ -763,7 +763,7 @@ function devRows(health){const H={};(health||[]).forEach(h=>H[h.id]=h);
 function bindDevRows(el,redraw){
  el.querySelectorAll("[data-dn]").forEach(i=>i.onchange=async()=>{try{SU=await jpost("/api/setup/device",{id:i.dataset.dn,name:i.value});toast("Renamed")}catch(e){toast(e.message)}});
  el.querySelectorAll("[data-den]").forEach(b=>b.onclick=async()=>{const d=SU.devices.find(x=>x.id==b.dataset.den);SU=await jpost("/api/setup/device",{id:d.id,enabled:!d.enabled});redraw()});
- el.querySelectorAll("[data-drm]").forEach(b=>b.onclick=async()=>{if(!confirm("Remove this box from Strivo? Its history stays."))return;SU=await jpost("/api/setup/device",{id:b.dataset.drm,remove:true});redraw()})}
+ el.querySelectorAll("[data-drm]").forEach(b=>b.onclick=async()=>{if(!confirm("Remove this box from StriVo? Its history stays."))return;SU=await jpost("/api/setup/device",{id:b.dataset.drm,remove:true});redraw()})}
 function addBox(el,redraw){
  el.innerHTML='<div class="row" style="display:block"><button class="btn add" id="scan">🔎 Find boxes on my network</button><div id="found" style="margin-top:8px"></div>'+
   '<details style="margin-top:10px"><summary class="s" style="cursor:pointer">Add one by address</summary><div style="display:grid;gap:8px;margin-top:8px"><select id="mk" class="wq">'+KINDS.map((k,i)=>'<option value="'+i+'">'+esc(k[1])+'</option>').join("")+'</select><input id="mn" class="wq" placeholder="Name, e.g. Living Room"><input id="mh" class="wq" placeholder="Address, e.g. 192.168.1.20" autocapitalize="off"><div class="note" id="mhow"></div><button class="btn add" id="madd">Add and pair</button></div></details></div>';
@@ -786,12 +786,12 @@ function pairFlow(spec,done){const d=document.createElement("div");d.className="
  jpost("/api/setup/pair",spec).then(v=>{pid=v.id;poll()}).catch(e=>box('<div class="s" style="color:var(--warn)">'+esc(e.message)+'</div>'))}
 function extraSettings(S){const cs=COUNTRIES.some(c=>c[0]==S.country)?COUNTRIES:COUNTRIES.concat([[S.country,S.country]]);
  return '<h3>Where you live</h3><div class="row"><div class="ln"><div>Country (for what is streaming where)</div><select id="ctry">'+cs.map(c=>'<option value="'+c[0]+'"'+(c[0]==S.country?' selected':'')+'>'+esc(c[1])+'</option>').join("")+'</select></div></div>'+
-  '<h3>Notifications</h3><div class="row"><div class="note" style="margin:0 0 6px">Optional. When something on your Saved list lands on one of your services or airs tomorrow, Strivo POSTs a short message here (an ntfy topic, a Home Assistant webhook…).</div><input class="wq" id="nurl" placeholder="https://ntfy.sh/your-topic" value="'+esc(S.notify_url||"")+'" autocapitalize="off"></div>'+
+  '<h3>Notifications</h3><div class="row"><div class="note" style="margin:0 0 6px">Optional. When something on your Saved list lands on one of your services or airs tomorrow, StriVo POSTs a short message here (an ntfy topic, a Home Assistant webhook…).</div><input class="wq" id="nurl" placeholder="https://ntfy.sh/your-topic" value="'+esc(S.notify_url||"")+'" autocapitalize="off"></div>'+
   '<h3>Health</h3><div class="row" id="healthbox"><div class="s">Checking…</div></div>'+
-  '<h3>Fixes</h3><div class="row"><div class="ln"><div>Compatibility fixes<div class="note">Streaming apps change what they report. Strivo checks GitHub daily for rules fixes (data, never code) and can install them for you.</div></div><select id="rupd">'+[["auto","Install automatically"],["ask","Ask me first"],["off","Don't check"]].map(o=>'<option value="'+o[0]+'"'+((S.rules_updates||"auto")==o[0]?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></div></div>'+
+  '<h3>Fixes</h3><div class="row"><div class="ln"><div>Compatibility fixes<div class="note">Streaming apps change what they report. StriVo checks GitHub daily for rules fixes (data, never code) and can install them for you.</div></div><select id="rupd">'+[["auto","Install automatically"],["ask","Ask me first"],["off","Don't check"]].map(o=>'<option value="'+o[0]+'"'+((S.rules_updates||"auto")==o[0]?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></div></div>'+
   '<h3>Show and movie info</h3><div class="row"><div class="ln"><div>TMDB key<div class="note">'+(S.tmdb_key_set?'Set. Posters, episodes and picks come from TMDB.':'Not set. Posters and picks need a free TMDB key.')+'</div></div><button class="btn" id="tmdbset">'+(S.tmdb_key_set?"Change":"Add key")+'</button></div></div>'+
   '<h3>About</h3><div class="row">'+
-  '<div class="ln"><div>Strivo version</div><span class="s">'+esc((SU&&SU.version)||"?")+'</span></div>'+
+  '<div class="ln"><div>StriVo version</div><span class="s">'+esc((SU&&SU.version)||"?")+'</span></div>'+
   '<div class="ln"><div>Compatibility rules</div><span class="s">'+esc((SU&&SU.rules_version)||"?")+'</span></div>'+
   '<div class="ln"><div>Source and help</div><a class="lnk" href="https://github.com/nickdnj/strivo" target="_blank" rel="noopener">github.com/nickdnj/strivo</a></div>'+
   '<div class="ln"><div>License</div><span class="s">MIT · free and open source</span></div></div>'+
@@ -810,7 +810,7 @@ async function healthBox(force){const el=$("#healthbox");if(!el)return;let d;
   d.apps.filter(a=>a.state!="healthy").map(a=>'<div class="ln"><div>'+HICON[a.state]+' '+esc(a.app)+' <span class="s">on '+esc(a.device_name)+'</span></div><span class="s">'+esc(a.state=="app-only"?"app only (a known limit)":a.state)+'</span></div>').join("")+
   d.problems.map(p=>'<div style="margin:8px 0;padding:8px 10px;border:1px solid var(--warn);border-radius:10px"><div class="t" style="white-space:normal">'+esc(p.what)+'</div><div class="s" style="white-space:normal">'+esc(p.summary)+' '+esc(p.cause||"")+'</div>'+(p.steps||[]).map(x=>'<div class="note">· '+esc(x)+'</div>').join("")+'<button class="btn" style="margin-top:6px" data-rep="'+esc(p.key)+'">Check for an existing report…</button></div>').join("")+
   '<div class="note" style="margin-top:8px">Rules '+esc(d.rules.version)+(d.rules.source=="update"?' (updated)':'')+' · last checked for fixes '+esc(when)+(u.status?' · '+esc(u.status):'')+(u.error?' · '+esc(u.error):'')+'</div>'+
-  (u.code_update?'<div class="note" style="color:var(--warn)">Strivo '+esc(u.latest_version)+' is available. Update your container or package when convenient; Strivo never updates its own code.</div>':'')+
+  (u.code_update?'<div class="note" style="color:var(--warn)">StriVo '+esc(u.latest_version)+' is available. Update your container or package when convenient; StriVo never updates its own code.</div>':'')+
   (u.rules_available?'<button class="btn add" id="rapply" style="margin-top:6px">Install rules '+esc(u.rules_available)+'</button>':'')+
   '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn" id="hcheck">Check for fixes now</button>'+(d.rules.source=="update"?'<button class="btn" id="hroll">Undo last rules update</button>':'')+'</div>';
  $("#hcheck").onclick=()=>{el.querySelector(".note").textContent="Checking GitHub…";healthBox(true)};
@@ -819,12 +819,12 @@ async function healthBox(force){const el=$("#healthbox");if(!el)return;let d;
  el.querySelectorAll("[data-rep]").forEach(b=>b.onclick=async()=>{const r=await (await fetch("/api/doctor/report?key="+encodeURIComponent(b.dataset.rep))).json();
   const box=document.createElement("div");box.className="tvs";box.style.cssText="position:fixed;inset:0;background:#000a;z-index:120;display:flex;align-items:flex-end;justify-content:center";
   const title=r.existing?"Existing compatibility report":"Prepare a report?";const action=r.existing?"👍 it if this is you":"Open on GitHub";
-  box.innerHTML='<div style="background:var(--card);color:var(--tx);border:1px solid var(--line);border-radius:14px 14px 0 0;padding:16px;width:100%;max-width:560px;box-sizing:border-box"><div class="t">'+title+'</div><div class="s" style="white-space:normal;margin:6px 0">'+(r.existing?"Someone already reported this. Open it and add a 👍 (and anything you noticed) instead of filing a new one. For comparison, your report would have said:":"It opens a GitHub issue for you to review and submit. Strivo sends nothing itself. The report contains only:")+'</div>'+Object.entries(r.fields).filter(x=>x[1]!==null&&x[1]!=="").map(([k,v])=>'<div style="display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-bottom:1px solid var(--line)"><span class="s">'+esc(k.replace(/_/g," "))+'</span><span>'+esc(v)+'</span></div>').join("")+'<a class="btn add" style="display:block;text-align:center;margin-top:10px;padding:10px;text-decoration:none" target="_blank" rel="noopener" href="'+esc(r.url)+'">'+action+'</a><button class="btn" style="width:100%;padding:10px;margin-top:8px" id="repx">Cancel</button></div>';
+  box.innerHTML='<div style="background:var(--card);color:var(--tx);border:1px solid var(--line);border-radius:14px 14px 0 0;padding:16px;width:100%;max-width:560px;box-sizing:border-box"><div class="t">'+title+'</div><div class="s" style="white-space:normal;margin:6px 0">'+(r.existing?"Someone already reported this. Open it and add a 👍 (and anything you noticed) instead of filing a new one. For comparison, your report would have said:":"It opens a GitHub issue for you to review and submit. StriVo sends nothing itself. The report contains only:")+'</div>'+Object.entries(r.fields).filter(x=>x[1]!==null&&x[1]!=="").map(([k,v])=>'<div style="display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-bottom:1px solid var(--line)"><span class="s">'+esc(k.replace(/_/g," "))+'</span><span>'+esc(v)+'</span></div>').join("")+'<a class="btn add" style="display:block;text-align:center;margin-top:10px;padding:10px;text-decoration:none" target="_blank" rel="noopener" href="'+esc(r.url)+'">'+action+'</a><button class="btn" style="width:100%;padding:10px;margin-top:8px" id="repx">Cancel</button></div>';
   document.body.appendChild(box);box.querySelector("#repx").onclick=()=>box.remove()})}
 function tmdbSheet(done){const d=document.createElement("div");d.className="tvs";d.style.cssText="position:fixed;inset:0;background:#000a;z-index:120;display:flex;align-items:flex-end;justify-content:center";document.body.appendChild(d);
  d.innerHTML='<div style="background:var(--card);color:var(--tx);border:1px solid var(--line);border-radius:14px 14px 0 0;padding:16px;width:100%;max-width:560px;box-sizing:border-box">'+tmdbForm()+'<button class="btn" id="tx" style="width:100%;padding:10px;margin-top:10px">Close</button></div>';
  bindTmdb(d,()=>{d.remove();done&&done()});d.querySelector("#tx").onclick=()=>d.remove()}
-const tmdbForm=()=>'<div class="s" style="white-space:normal;margin-bottom:8px">Strivo gets posters, episode lists and picks from TMDB. Only show and movie titles are sent, never your history. A key is free: sign up at <a class="lnk" href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a>, then copy the <b>API Read Access Token</b> from <a class="lnk" href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener">Settings › API</a>.</div><input class="wq" id="tkey" placeholder="Paste the token" autocomplete="off" autocapitalize="off"><button class="btn add" id="tsave" style="width:100%;padding:10px;margin-top:8px">Save key</button><div class="note" id="tmsg"></div>';
+const tmdbForm=()=>'<div class="s" style="white-space:normal;margin-bottom:8px">StriVo gets posters, episode lists and picks from TMDB. Only show and movie titles are sent, never your history. A key is free: sign up at <a class="lnk" href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a>, then copy the <b>API Read Access Token</b> from <a class="lnk" href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener">Settings › API</a>.</div><input class="wq" id="tkey" placeholder="Paste the token" autocomplete="off" autocapitalize="off"><button class="btn add" id="tsave" style="width:100%;padding:10px;margin-top:8px">Save key</button><div class="note" id="tmsg"></div>';
 function bindTmdb(el,ok){el.querySelector("#tsave").onclick=async()=>{const k=el.querySelector("#tkey").value.trim();if(!k)return;el.querySelector("#tmsg").textContent="Checking…";
  try{await jpost("/api/setup/tmdb",{key:k});el.querySelector("#tmsg").textContent="✓ Key works.";await suLoad();ok&&ok()}catch(e){el.querySelector("#tmsg").textContent=e.message}}}
 async function devicesPage(){const m=$("#main");m.innerHTML='<div class="set" id="devp"><div class="empty">Loading…</div></div>';await suLoad();
@@ -837,8 +837,8 @@ const WSTEPS=["Welcome","Your boxes","Show info","Your services","Your TVs"];
 function wizard(){let w=$("#wiz");if(!w){w=document.createElement("div");w.id="wiz";w.className="rd";document.body.appendChild(w)}
  const S=SU,nav=(back,next,label)=>'<div style="display:flex;gap:8px;margin-top:18px">'+(back?'<button class="btn" id="wb" style="flex:1;padding:12px">‹ Back</button>':'')+'<button class="btn add" id="wn" style="flex:2;padding:12px;background:var(--acc);color:#fff;border-color:var(--acc)">'+(label||"Next ›")+'</button></div>';
  const dots='<div class="s" style="margin:4px 0 14px">Step '+(wstep+1)+' of '+WSTEPS.length+' · '+WSTEPS[wstep]+'</div>';
- let h='<div class="in set"><h1 style="margin:14px 0 2px">Set up Strivo</h1>'+dots;
- if(wstep==0)h+='<div class="row" style="display:block"><div class="t" style="white-space:normal;font-size:17px">Strivo remembers everything you watch, across every app, by itself.</div><p class="s" style="white-space:normal">It listens to your streaming boxes on your home network, builds your history and queue, and finds what to watch next. Everything stays on this computer. There is no Strivo account and no Strivo cloud.</p><p class="s" style="white-space:normal">This takes about 3 minutes: find your boxes, add a free TMDB key for posters, pick your services, and name your TVs.</p></div>'+nav(false,true,"Let's go ›");
+ let h='<div class="in set"><h1 style="margin:14px 0 2px">Set up StriVo</h1>'+dots;
+ if(wstep==0)h+='<div class="row" style="display:block"><div class="t" style="white-space:normal;font-size:17px">StriVo remembers everything you watch, across every app, by itself.</div><p class="s" style="white-space:normal">It listens to your streaming boxes on your home network, builds your history and queue, and finds what to watch next. Everything stays on this computer. There is no StriVo account and no StriVo cloud.</p><p class="s" style="white-space:normal">This takes about 3 minutes: find your boxes, add a free TMDB key for posters, pick your services, and name your TVs.</p></div>'+nav(false,true,"Let's go ›");
  else if(wstep==1)h+='<div class="s" style="white-space:normal">Apple TV, Google TV / Android TV and Fire TV track what you watch. Plex and Jellyfin servers report exactly what plays on any screen. Roku support is experimental.</div><h3>Added</h3><div id="wdev">'+devRows([])+'</div><h3>Add</h3><div id="waddb"></div>'+nav(true,true,(S.devices||[]).length?"Next ›":"Skip for now ›");
  else if(wstep==2)h+=(S.tmdb_key_set?'<div class="row"><div class="t" style="color:var(--ok)">✓ TMDB key saved</div><div class="s">You can change it later in Settings.</div></div>':'<div class="row" style="display:block">'+tmdbForm()+'</div>')+nav(true,true,S.tmdb_key_set?"Next ›":"Skip for now ›");
  else if(wstep==3)h+='<div class="row"><div class="ln"><div>Country</div><select id="wct">'+COUNTRIES.map(c=>'<option value="'+c[0]+'"'+(c[0]==S.country?' selected':'')+'>'+esc(c[1])+'</option>').join("")+'</select></div></div><h3>Services you pay for</h3><div class="row"><div class="svc">'+S.all_services.map(n=>'<button class="btn'+(S.services.includes(n)?" on":"")+'" data-wsv="'+esc(n)+'">'+esc(n)+'</button>').join("")+'</div><div class="note">Picks only show what is included with these.</div></div>'+nav(true,true);

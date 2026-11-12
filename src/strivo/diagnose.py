@@ -53,7 +53,7 @@ class RulesDiagnoser(Diagnoser):
     def diagnose(self, entry, failure):
         app = entry.get("app") or "this box"
         if failure == "unpaired":
-            return Diagnosis("The box refused Strivo's credentials.", "It was reset, or its pairing was removed.",
+            return Diagnosis("The box refused StriVo's credentials.", "It was reset, or its pairing was removed.",
                              ["Remove it under Devices and add it again."])
         if failure == "offline":
             steps = ["Check it's on and on the same network."]
@@ -61,14 +61,14 @@ class RulesDiagnoser(Diagnoser):
                 steps.append("System updates sometimes turn debugging off: check Developer options.")
             if entry.get("kind") == "roku":
                 steps.append("Check Control by mobile apps is still set to Permissive.")
-            return Diagnosis("Strivo can't reach this box.", "It's off, asleep in a deep power mode, on another "
+            return Diagnosis("StriVo can't reach this box.", "It's off, asleep in a deep power mode, on another "
                              "network, or its address changed.", steps)
         if failure == "verifying":
             return Diagnosis(f"A fix for {app} was installed; waiting to see a title come through.",
                              "Recovery is only confirmed by real playback.", ["Play something in the app for a minute."])
         return Diagnosis(f"{app} is playing but no longer says what.",
                          "The app probably changed what it reports (an app update).",
-                         ["Strivo checks daily for a rules fix and installs it automatically.",
+                         ["StriVo checks daily for a rules fix and installs it automatically.",
                           "If it lasts more than a few days, send a report (it contains no titles or personal info)."])
 
 

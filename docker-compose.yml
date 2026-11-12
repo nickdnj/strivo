@@ -4,7 +4,7 @@ services:
     image: ghcr.io/nickdnj/strivo:latest
     # build: .            # uncomment to build from this checkout instead
     container_name: strivo
-    network_mode: host    # required: Strivo finds and talks to your boxes on the home network
+    network_mode: host    # required: StriVo finds and talks to your boxes on the home network
     restart: unless-stopped
     environment:
       - TZ=America/New_York   # your time zone, so history days line up

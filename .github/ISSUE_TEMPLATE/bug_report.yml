@@ -29,12 +29,12 @@ body:
   - type: dropdown
     id: host
     attributes:
-      label: Where Strivo runs
+      label: Where StriVo runs
       options: [Docker on Linux, Docker on Mac, Docker on Windows, Raspberry Pi, NAS, Home Assistant add-on, Other]
   - type: input
     id: version
     attributes:
-      label: Strivo version
+      label: StriVo version
       placeholder: "0.1.0 (shown in More › Settings › About)"
   - type: textarea
     id: logs

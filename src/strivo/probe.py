@@ -1,7 +1,7 @@
 """`strivo probe`: what does each box and app actually report?
 
 It listens for a few minutes (or reads an existing events.jsonl) and prints, per box and per app, whether
-Strivo got the show and episode, just a title, or nothing at all. The report is built to be pasted in public:
+StriVo got the show and episode, just a title, or nothing at all. The report is built to be pasted in public:
 no titles, no device names, no addresses, no account names. Only box models, OS versions, app names and counts.
 """
 from __future__ import annotations
@@ -66,7 +66,7 @@ class Probe:
     def report(self, minutes: float | None = None) -> str:
         kinds = {"appletv": "Apple TV", "android": "Google TV / Android TV", "roku": "Roku", "plex": "Plex",
                  "jellyfin": "Jellyfin"}
-        out = [f"Strivo probe report · Strivo {__version__}" + (f" · listened {minutes:g} min" if minutes else ""), ""]
+        out = [f"StriVo probe report · StriVo {__version__}" + (f" · listened {minutes:g} min" if minutes else ""), ""]
         if not self.boxes:
             out.append("No boxes answered. Check `strivo setup` (or the Devices page) and try again.")
         for i, (dev_id, b) in enumerate(self.boxes.items(), 1):

@@ -1,10 +1,10 @@
 # Does it work with my TV?
 
-Strivo has one rule: **tracking must be fully automatic.** A setup is supported only if it tells Strivo *what's playing* (the show, and ideally the episode) all by itself.
+StriVo has one rule: **tracking must be fully automatic.** A setup is supported only if it tells StriVo *what's playing* (the show, and ideally the episode) all by itself.
 
 So what matters is the **box (or TV operating system) that runs your streaming apps**, not the brand on the front of the TV.
 
-- A **Samsung or LG** TV with an Apple TV, Google TV or Fire TV plugged in? ✅ Fully supported. Strivo watches the box.
+- A **Samsung or LG** TV with an Apple TV, Google TV or Fire TV plugged in? ✅ Fully supported. StriVo watches the box.
 - A **Sony, TCL, Hisense or Philips** TV with Google TV built in? ✅ Supported directly.
 - An **Insignia or Toshiba** Fire TV Edition TV? ✅ Supported directly.
 
@@ -14,7 +14,7 @@ So what matters is the **box (or TV operating system) that runs your streaming a
 
 ### Tier 1: fully automatic
 
-| Setup | Examples | Knows the title? | How Strivo talks to it | One-time setup |
+| Setup | Examples | Knows the title? | How StriVo talks to it | One-time setup |
 |---|---|---|---|---|
 | 🍎 **Apple TV** | Apple TV 4K, Apple TV HD | ✅ Most apps (see the app table) | Local network, via [pyatv](https://github.com/postlund/pyatv) | Type a 4-digit code shown on the TV |
 | 🤖 **Google TV / Android TV** | Google TV Streamer, Chromecast with Google TV, Nvidia Shield, onn 4K; Sony, TCL, Hisense, Philips TVs with Google TV | ✅ Apps that publish a media session *(being verified per app)* | Local network, via Android's debugging bridge (ADB) | Turn on developer options and network debugging, then press **Allow** on the TV |
@@ -58,7 +58,7 @@ Even on a supported box, each streaming app decides what it shares. This table i
 
 Legend: ✅ reports what's playing · 🟡 sometimes · ⚪ app only · ❔ not tested yet
 
-Apps report titles differently. Some send "Show | S43 E19", others only the episode name. Strivo matches whatever arrives to the right show and episode through TMDB.
+Apps report titles differently. Some send "Show | S43 E19", others only the episode name. StriVo matches whatever arrives to the right show and episode through TMDB.
 
 | App | Apple TV | Google TV / Android TV | Fire TV | Roku |
 |---|---|---|---|---|
@@ -81,7 +81,7 @@ Apps report titles differently. Some send "Show | S43 E19", others only the epis
 The VLC result is from Google's TV emulator, where the big streaming apps can't be installed; it proves the
 pipeline, not any particular streaming app.*
 
-On Google TV / Android TV / Fire TV, Strivo reads Android's media sessions: the same "now playing" information the
+On Google TV / Android TV / Fire TV, StriVo reads Android's media sessions: the same "now playing" information the
 TV shows on its own Now Playing card. Apps that show one will almost certainly work; apps that don't (some
 Netflix builds) will show as **app only**. `strivo probe` tells you which is which on your box.
 
@@ -91,7 +91,7 @@ Netflix builds) will show as **app only**. `strivo probe` tells you which is whi
 
 This table only gets filled in with your help, and it's one of the most valuable things you can contribute.
 
-1. Install Strivo ([INSTALL.md](INSTALL.md); before v0.1, `pip install git+https://github.com/nickdnj/strivo` works) and add your box with `strivo setup` or the setup wizard.
+1. Install StriVo ([INSTALL.md](INSTALL.md); before v0.1, `pip install git+https://github.com/nickdnj/strivo` works) and add your box with `strivo setup` or the setup wizard.
 2. Run:
    ```bash
    strivo probe --minutes 10

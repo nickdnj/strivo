@@ -3,7 +3,7 @@
 
     python tools/fake_roku.py --port 8060
 
-Then add it in Strivo as a Roku at 127.0.0.1 (port 8060). Every 20 s it cycles through: Netflix playing with no
+Then add it in StriVo as a Roku at 127.0.0.1 (port 8060). Every 20 s it cycles through: Netflix playing with no
 title (what most channels do), a channel that does report a title, and the home screen. POSTs (launch, keypress)
 are printed so you can see "Play on TV" arrive.
 """

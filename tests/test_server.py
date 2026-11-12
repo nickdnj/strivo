@@ -67,7 +67,7 @@ def wait(pred, t=5):
 def test_static_and_empty_state(app):
     a, c, *_ = app
     html = c.get("/")
-    assert b"<title>Strivo</title>" in html and b"NiVo" not in html and b"data-theme=retro" not in html
+    assert b"<title>StriVo</title>" in html and b"NiVo" not in html and b"data-theme=retro" not in html
     st = c.get("/api/setup")
     assert st["setup_done"] is False and st["tmdb_key_set"] is False and st["devices"] == []
     from strivo import __version__
@@ -75,7 +75,7 @@ def test_static_and_empty_state(app):
     assert b"<h3>About</h3>" in html and b"Screen: " not in html
     assert b'id="splash"' in html and b"prefers-reduced-motion" in html             # launch animation, motion-safe
     assert c.get("/api/data")["series"] == []
-    assert json.loads(c.get("/manifest.webmanifest"))["name"] == "Strivo"
+    assert json.loads(c.get("/manifest.webmanifest"))["name"] == "StriVo"
 
 
 def test_wizard_end_to_end(app):

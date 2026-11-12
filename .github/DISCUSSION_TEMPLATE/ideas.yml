@@ -3,7 +3,7 @@ body:
     id: idea
     attributes:
       label: The idea
-      description: What would you like Strivo to do, and why does it matter on the couch?
+      description: What would you like StriVo to do, and why does it matter on the couch?
     validations:
       required: true
   - type: textarea
