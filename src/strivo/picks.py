@@ -93,12 +93,12 @@ def suggest_build(core, f=None, fname="suggestions.json"):
     gname = {g["id"]: g["name"] for g in core.tmdb.get("/genre/movie/list").get("genres", [])}
     gid = {n: i for i, n in gname.items()}
     story = {gid[n] for n in taste.get("story_genres", []) if n in gid}
-    fbs = [f for k, f in core.feedback().items() if not k.startswith("tv:")]
+    fbs = [fb for k, fb in core.feedback().items() if not k.startswith("tv:")]
     pen, hide_seq = defaultdict(int), False
-    for f in fbs:
-        tg = f.get("tags") or []
+    for fb in fbs:
+        tg = fb.get("tags") or []
         if "genre" in tg:
-            for n in f.get("genres", []):
+            for n in fb.get("genres", []):
                 pen[n] += 1
         if "kids" in tg:
             pen["Animation"] += 1
@@ -160,11 +160,11 @@ def suggest_build(core, f=None, fname="suggestions.json"):
                 break
             for x in res:
                 add(x, 5.0, reason, floor)
-    for mid, f in core.feedback().items():
-        if f.get("reason") == "liked" and not mid.startswith("tv:"):
+    for mid, fb in core.feedback().items():
+        if fb.get("reason") == "liked" and not mid.startswith("tv:"):
             try:
                 for x in core.tmdb.get("/movie/%s/recommendations" % mid).get("results", []):
-                    add(x, 3.0, "you liked " + f.get("title", "a movie"))
+                    add(x, 3.0, "you liked " + fb.get("title", "a movie"))
             except Exception:
                 pass
     gscore = defaultdict(float)

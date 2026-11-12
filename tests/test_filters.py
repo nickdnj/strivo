@@ -71,6 +71,8 @@ def test_saved_filters_round_trip_and_reach_tmdb(data, tmdb):
 
 def test_defaults_apply_at_once_and_rebuild_refills(data, tmdb):
     core = _core(data, tmdb)
+    core.save_feedback(999, "Some Movie", "no", "", tags=["genre", "sequel"], genres=["Horror"])   # real homes have these
+    core.save_feedback(998, "Kid Movie", "no", "", tags=["kids"])
     picks.suggest_build(core)
     assert [i["title"] for i in picks.suggestions(core)["items"]] == ["Picked Movie"]
     core.settings_save({"discover": {"movies": {"min_rating": 8.5}}})
