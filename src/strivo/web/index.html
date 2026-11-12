@@ -75,6 +75,7 @@ nav button.on{background:var(--acc);color:#fff;border-color:var(--acc);font-weig
 .rl .act{position:absolute;right:10px;bottom:34px;display:flex;flex-direction:column;gap:16px;align-items:center}
 .rl .act button{background:#0008;border:1px solid #fff4;color:#fff;width:52px;height:52px;border-radius:50%;font-size:22px;cursor:pointer}
 .rl .act small{display:block;font-size:10px;margin-top:2px}
+.rl .thb{position:absolute;left:12px;top:46%;display:flex;flex-direction:column;gap:16px;z-index:3}.rl .thb button{width:56px;height:56px;border-radius:50%;border:2px solid #fff6;color:#fff;font-size:26px;cursor:pointer;box-shadow:0 3px 12px #0008;display:flex;align-items:center;justify-content:center;padding:0}.rl .thb .up{background:#15803dd9}.rl .thb .dn{background:#b91c1cd9}.rl .thb button:active{transform:scale(.9)}.rl .thb .up.pop{animation:thpop .5s}.rl .sl{touch-action:pan-y}.swst{position:absolute;top:28%;left:50%;transform:translateX(-50%);font-size:96px;opacity:0;pointer-events:none;z-index:4;filter:drop-shadow(0 4px 14px #000a)}@keyframes thpop{40%{transform:scale(1.3)}}
 .rl .top{position:absolute;top:0;left:0;right:0;z-index:5;padding:max(10px,env(safe-area-inset-top)) 12px 8px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(#000a,transparent)}
 .rl .top button{background:#0008;border:1px solid #fff4;color:#fff;border-radius:999px;padding:7px 14px;font-size:14px}
 .rl .hint{position:absolute;bottom:4px;left:0;right:0;text-align:center;font-size:11px;color:#fff8;pointer-events:none}
@@ -303,7 +304,7 @@ async function stSave(o,msg){try{ST=await (await fetch("/api/settings",{method:"
 async function discPage(){const m=$("#main");if(!ST){m.innerHTML='<div class="empty">Loading…</div>';await stLoad();if(tab!="disc")return}
  const cats=Object.entries((ST&&ST.discover)||{series:{label:"Series",on:true},movies:{label:"Movies",on:true}}).filter(([k,v])=>v.on);
  if(!cats.some(c=>c[0]==dcat))dcat=(cats[0]||["series"])[0];
- const intro="Picks on your services that fit your filters. ＋ adds one to To Watch, Later moves it down, ✕ passes.";
+ const intro="Picks on your services that fit your filters. 👍 to add or say you liked it, 👎 if it's not for you.";
  m.innerHTML='<div class="chips">'+cats.map(([k,v])=>'<button class="btn'+(dcat==k?" on":"")+'" data-dc="'+k+'">'+esc(v.label)+'</button>').join("")+'<button class="btn gear" data-dc="__set" title="Settings" aria-label="Settings">⚙︎</button></div><div class="s" style="margin-bottom:8px">'+esc(intro)+'</div><div id="fbar"></div>'+
   (dcat=="series"?'<div id="hlist"><div class="empty">Loading…</div></div>':dcat=="movies"?'<div id="slist"><div class="empty">Loading…</div></div>':'<div id="glist"><div class="empty">Loading…</div></div>');
  m.querySelectorAll("[data-dc]").forEach(b=>b.onclick=()=>{bloop();if(b.dataset.dc=="__set")return go("set");dcat=b.dataset.dc;localStorage.setItem("wl_dcat",dcat);discPage()});
@@ -352,9 +353,9 @@ function filterSheet(f0){const old=document.querySelector(".tvs");if(old)old.rem
 async function discLoad(cat){try{GN=await (await fetch(dq(cat))).json()}catch(e){GN={items:[],dismissed:[],built:0}}GN.cat=cat;GN.cat_=cat;drawFbar();drawGen()}
 const genLater=async(x,on)=>fetch("/api/discover/later",{method:"POST",body:JSON.stringify({id:x.id,type:x.type,on})});
 const genAdd=async x=>fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"add",id:x.id,type:x.type||"movie",title:x.title,year:x.year,poster:x.poster})});
-function cardGen(x){const tv=x.type=="tv";return{tid:x.id,ttype:x.type,poster:x.poster,title:x.title,star:x.rating||"",badge:x.later?"Later":"",sub:[tv?"Series":"Movie",x.year,tv&&x.seasons?x.seasons+" season"+(x.seasons==1?"":"s"):(x.runtime?x.runtime+" min":""),(x.genres||[]).slice(0,2).join(" · ")].filter(Boolean).join(" · "),chips:x.providers,desc:x.overview,open:()=>reelDetail(x),
- actions:[{i:"▶",l:"Play",f:()=>tvSheet(x)},aInfo(()=>reelDetail(x)),{i:"＋",l:"To Watch",f:async(b,s)=>{bloop();await genAdd(x);dong();hideSlide(s);toast(x.title+" added to To Watch")}},
-  {i:"⏳",l:"Later",f:async(b,s)=>{bloop();await genLater(x,true);hideSlide(s);toast(x.title+" moved down for now",async()=>{await genLater(x,false);discLoad(x.cat)})}},{i:"✕",l:"Pass",f:(b,s)=>reasonSheet(x,()=>hideSlide(s))}]}}
+function cardGen(x){const tv=x.type=="tv";return{tid:x.id,ttype:x.type,poster:x.poster,title:x.title,star:x.rating||"",badge:x.later?"Later":"",sub:[tv?"Series":"Movie",x.year,tv&&x.seasons?x.seasons+" season"+(x.seasons==1?"":"s"):(x.runtime?x.runtime+" min":""),(x.genres||[]).slice(0,2).join(" · ")].filter(Boolean).join(" · "),chips:x.providers,desc:x.overview,open:()=>reelDetail(x),thumbs:thumbs(x),
+ actions:[{i:"▶",l:"Play",f:()=>tvSheet(x)},aInfo(()=>reelDetail(x)),
+  {i:"⏳",l:"Later",f:async(b,s)=>{bloop();await genLater(x,true);hideSlide(s);toast(x.title+" moved down for now",async()=>{await genLater(x,false);discLoad(x.cat)})}},{i:"…",l:"Why not",f:(b,s)=>reasonSheet(x,()=>hideSlide(s))}]}}
 function drawGen(){const el=$("#glist");if(!el||!GN)return;if(mode!="posters")immOff();
  if(mode=="posters"&&GN.items.length){reelFeed(el,GN.items.map(cardGen));return}
  el.className="";
@@ -406,8 +407,8 @@ async function queueAdd(x){await fetch("/api/queue/add",{method:"POST",body:JSON
 async function showsLoad(){try{HS=await (await fetch(dq("series"))).json()}catch(e){HS={items:[],dismissed:[],built:0}}HS.cat_="series";drawFbar();drawShows()}
 async function laterSet(x,on){await fetch("/api/shows/later",{method:"POST",body:JSON.stringify({id:x.id,on})})}
 function cardShow(x){return{tid:x.id,ttype:"tv",poster:x.poster,title:x.title,star:x.rating||"",badge:x.later?"Later":"",sub:[x.year,x.seasons?x.seasons+" season"+(x.seasons==1?"":"s"):"",(x.genres||[]).slice(0,2).join(" · ")].filter(Boolean).join(" · "),chips:x.providers,desc:x.overview,why:"Why: "+(x.why||[]).join(" · "),open:()=>reelDetail(x),
- actions:[{i:"▶",l:"Play",f:()=>tvSheet(x)},aInfo(()=>reelDetail(x)),{i:"＋",l:"To Watch",f:async(b,s)=>{bloop();await genAdd(Object.assign({type:"tv"},x));dong();hideSlide(s);toast(x.title+" added to To Watch")}},
-  {i:"⏳",l:"Later",f:async(b,s)=>{bloop();await laterSet(x,true);hideSlide(s);toast(x.title+" moved down for now",async()=>{await laterSet(x,false);showsLoad()})}},{i:"✕",l:"Pass",f:(b,s)=>reasonSheet(x,()=>hideSlide(s))}]}}
+ thumbs:thumbs(Object.assign({type:"tv"},x)),actions:[{i:"▶",l:"Play",f:()=>tvSheet(x)},aInfo(()=>reelDetail(x)),
+  {i:"⏳",l:"Later",f:async(b,s)=>{bloop();await laterSet(x,true);hideSlide(s);toast(x.title+" moved down for now",async()=>{await laterSet(x,false);showsLoad()})}},{i:"…",l:"Why not",f:(b,s)=>reasonSheet(x,()=>hideSlide(s))}]}}
 function drawShows(){const el=$("#hlist");if(!el||!HS)return;if(mode!="posters")immOff();
  if(mode=="posters"&&HS.items.length){reelFeed(el,HS.items.map(cardShow));return}
  el.className="";
@@ -481,6 +482,7 @@ function reelFeed(el,cards){if(!el)return;el.className="rl rf";window.scrollTo(0
  el.innerHTML='<div class="feed">'+(cards.length?cards.map((c,i)=>'<div class="sl" data-i="'+i+'"><div class="bg"'+(c.poster?' style="background-image:url('+esc(bigp(c.poster))+')"':'')+'></div><div class="pst" data-open="'+i+'">'+(c.poster?'<img loading="'+(i<3?"eager":"lazy")+'" src="'+esc(bigp(c.poster))+'" alt="">':'')+'</div>'+
   '<div class="ov" data-open="'+i+'"><div class="tt">'+esc(c.title)+(c.star?'<span class="star">★ '+esc(c.star)+'</span>':'')+(c.badge?'<span class="bdg">'+esc(c.badge)+'</span>':'')+'</div>'+(c.sub?'<div class="s" style="color:#ccc;font-size:13px;white-space:normal">'+esc(c.sub)+'</div>':'')+
   '<div>'+(c.chips||[]).map(p=>'<span class="chp">'+esc(p)+'</span>').join("")+'</div>'+(c.pct!=null?'<div class="bar"><i style="width:'+c.pct+'%"></i></div>':'')+(c.desc?'<div class="ds">'+esc(c.desc)+'</div>':'')+(c.why?'<div class="s" style="color:#aaa;font-size:12px;margin-top:5px;white-space:normal">'+esc(c.why)+'</div>':'')+'<div class="cnt">'+(i+1)+' of '+cards.length+'</div></div>'+
+  (c.thumbs?'<div class="thb"><button class="up" data-th="up" title="Thumbs up" aria-label="Thumbs up">👍</button><button class="dn" data-th="down" title="Thumbs down: not interested" aria-label="Thumbs down">👎</button></div>':'')+
   '<div class="act">'+(c.actions||[]).map((a,j)=>'<button data-a="'+j+'">'+a.i+'<small>'+esc(a.l)+'</small></button>').join("")+'</div></div>').join(""):'<div class="sl"><div class="pst" style="padding:0"><div class="ph">Nothing here yet.</div></div></div>')+'</div>';
  fitFeed(el);
  {const f=el.querySelector(".feed");let touched=false;["touchstart","wheel","mousedown"].forEach(ev=>f.addEventListener(ev,()=>{touched=true},{passive:true}));
@@ -491,7 +493,40 @@ function reelFeed(el,cards){if(!el)return;el.className="rl rf";window.scrollTo(0
   f.addEventListener("scroll",()=>{if(!document.body.classList.contains("imm"))return;document.body.classList.toggle("imm-hide",f.scrollTop>40)},{passive:true});
   const io=new IntersectionObserver(es=>es.forEach(e=>{const s=e.target;if(e.isIntersecting){s.classList.add("cur");clearTimeout(tmr);if(autoTrailer)tmr=setTimeout(()=>slideTrailer(s,cards[+s.dataset.i]),2000)}else{s.classList.remove("cur");const v=s.querySelector(".tv");if(v)v.remove()}}),{root:f,threshold:.6});
   el.querySelectorAll(".sl[data-i]").forEach(s=>io.observe(s))}
- el.querySelectorAll("[data-a]").forEach(b=>b.onclick=e=>{e.stopPropagation();const s=b.closest(".sl");cards[+s.dataset.i].actions[+b.dataset.a].f(b,s)})}
+ el.querySelectorAll("[data-a]").forEach(b=>b.onclick=e=>{e.stopPropagation();const s=b.closest(".sl");cards[+s.dataset.i].actions[+b.dataset.a].f(b,s)});
+ el.querySelectorAll("[data-th]").forEach(b=>b.onclick=e=>{e.stopPropagation();const s=b.closest(".sl");cards[+s.dataset.i].thumbs[b.dataset.th](b,s)});
+ el.querySelectorAll(".sl[data-i]").forEach(s=>{const c=cards[+s.dataset.i];if(c.thumbs)swipeThumbs(s,c)})}
+// Swipe right = thumbs up, swipe left = thumbs down. Vertical scrolling between posters is left alone.
+function swipeThumbs(s,c){let x0=0,y0=0,dx=0,on=false,dir=null;const stamp=document.createElement("div");stamp.className="swst";s.appendChild(stamp);
+ s.addEventListener("touchstart",e=>{if(e.touches.length!=1||e.target.closest("button,a,iframe"))return;x0=e.touches[0].clientX;y0=e.touches[0].clientY;dx=0;on=true;dir=null},{passive:true});
+ s.addEventListener("touchmove",e=>{if(!on)return;const mx=e.touches[0].clientX-x0,my=e.touches[0].clientY-y0;
+  if(!dir){if(Math.abs(mx)<10&&Math.abs(my)<10)return;dir=Math.abs(mx)>Math.abs(my)*1.3?"h":"v"}
+  if(dir!="h")return;e.preventDefault();dx=mx;s.style.transform="translateX("+dx+"px) rotate("+dx/40+"deg)";
+  const k=Math.min(1,Math.abs(dx)/110);stamp.textContent=dx>0?"👍":"👎";stamp.className="swst "+(dx>0?"up":"dn");stamp.style.opacity=k},{passive:false});
+ const end=()=>{if(!on)return;on=false;if(dir!="h")return;
+  if(Math.abs(dx)>110){const up=dx>0;s.style.transition="transform .25s,opacity .25s";s.style.transform="translateX("+(up?1:-1)*innerWidth+"px) rotate("+(up?12:-12)+"deg)";s.style.opacity="0";
+   setTimeout(()=>{s.style.transition="";s.style.transform="";s.style.opacity="";stamp.style.opacity=0;
+    if(up)c.thumbs.up(s.querySelector(".thb .up")||s,s);else c.thumbs.down(null,s)},250)}
+  else{s.style.transition="transform .2s";s.style.transform="";stamp.style.opacity=0;setTimeout(()=>{s.style.transition=""},200)}};
+ s.addEventListener("touchend",end);s.addEventListener("touchcancel",end)}
+// TiVo-style thumbs on Discover posters. Down: not interested, gone. Up: add to To Watch, or "seen it, liked it" (more like this).
+function fbApi(x){return x.cat?"/api/discover/":x.type=="tv"?"/api/shows/":"/api/suggest/"}
+function fbReload(x){x.cat?discLoad(x.cat):x.type=="tv"?showsLoad():sugLoad()}
+const sendFb=(x,reason)=>fetch("/api/suggest/feedback",{method:"POST",body:JSON.stringify({id:x.id,title:x.title,reason,note:"",tags:[],genres:x.genres||[],type:x.type=="tv"?"tv":"movie"})});
+function thumbs(x){return{
+ down:async(b,s)=>{bloop();hideSlide(s);await sendFb(x,"no");await fetch(fbApi(x)+"dismiss",{method:"POST",body:JSON.stringify({id:x.id,type:x.type})});
+  toast("👎 "+x.title+": not for you",async()=>{await fetch(fbApi(x)+"restore",{method:"POST",body:JSON.stringify({id:x.id,type:x.type})});fbReload(x)})},
+ up:(b,s)=>{bloop();b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop");thumbUp(x,s)}}}
+function thumbUp(x,s){const old=document.querySelector(".tvs");if(old)old.remove();const tv=x.type=="tv";
+ const d=document.createElement("div");d.className="tvs";d.style.cssText="position:fixed;inset:0;background:#000a;z-index:100;display:flex;align-items:flex-end;justify-content:center";
+ d.innerHTML='<div class="fsheet"><div class="t" style="font-size:17px;white-space:normal">👍 '+esc(x.title)+'</div><div class="s" style="margin:4px 0 10px">Strivo will look for more '+(tv?"shows":"movies")+' like this.</div>'+
+  '<button class="btn add" data-u="want" style="display:block;width:100%;padding:12px;margin:6px 0">＋ Add to To Watch<div class="note" style="color:inherit;opacity:.8">Haven\'t seen it yet</div></button>'+
+  '<button class="btn" data-u="liked" style="display:block;width:100%;padding:12px;margin:6px 0">I\'ve seen it and liked it<div class="note">Remember it, find more like it</div></button>'+
+  '<button class="btn" id="ux" style="width:100%;padding:10px;margin-top:8px">Cancel</button></div>';
+ d.onclick=e=>{if(e.target===d)d.remove()};d.querySelector("#ux").onclick=()=>d.remove();document.body.appendChild(d);
+ d.querySelectorAll("[data-u]").forEach(b=>b.onclick=async()=>{const r=b.dataset.u;d.remove();bloop();await sendFb(x,r);
+  if(r=="want"){await genAdd(Object.assign({type:tv?"tv":"movie"},x));dong();hideSlide(s);toast("👍 "+x.title+" added to To Watch")}
+  else{await fetch(fbApi(x)+"dismiss",{method:"POST",body:JSON.stringify({id:x.id,type:x.type})});dong();hideSlide(s);toast("👍 Got it. More like "+x.title+" on the next rebuild",async()=>{await fetch(fbApi(x)+"restore",{method:"POST",body:JSON.stringify({id:x.id,type:x.type})});fbReload(x)})}})}
 async function slideTrailer(s,c){if(!c||!c.tid||!s.classList.contains("cur")||s.querySelector(".tv"))return;
  let ex=null;try{ex=await (await fetch("/api/suggest/extras?id="+c.tid+(c.ttype=="tv"?"&type=tv":""))).json()}catch(e){}
  if(!ex||!ex.trailer||!s.classList.contains("cur"))return;const k=ex.trailer;
@@ -501,8 +536,8 @@ const bigp=u=>(u||"").replace("/w185/","/w780/");
 const hideSlide=s=>{s.style.display="none"};
 const aInfo=f=>({i:"ⓘ",l:"Info",f});
 function cardSug(x){return{tid:x.id,ttype:"movie",poster:x.poster,title:x.title,star:x.rating||"",badge:x.later?"Later":"",sub:[x.year,x.runtime?x.runtime+" min":"",(x.genres||[]).slice(0,3).join(" · ")].filter(Boolean).join(" · "),chips:x.providers,desc:x.overview,why:"Why: "+(x.why||[]).join(" · "),open:()=>reelDetail(x),
- actions:[{i:"▶",l:"Play",f:()=>tvSheet(x)},aInfo(()=>reelDetail(x)),{i:"＋",l:"To Watch",f:async(b,s)=>{bloop();await genAdd(x);dong();hideSlide(s);toast(x.title+" added to To Watch")}},
-  {i:"⏳",l:"Later",f:async(b,s)=>{bloop();await genLater(Object.assign({type:"movie"},x),true);hideSlide(s);toast(x.title+" moved down for now",async()=>{await genLater(Object.assign({type:"movie"},x),false);sugLoad()})}},{i:"✕",l:"Pass",f:(b,s)=>reasonSheet(x,()=>hideSlide(s))}]}}
+ thumbs:thumbs(Object.assign({type:"movie"},x)),actions:[{i:"▶",l:"Play",f:()=>tvSheet(x)},aInfo(()=>reelDetail(x)),
+  {i:"⏳",l:"Later",f:async(b,s)=>{bloop();await genLater(Object.assign({type:"movie"},x),true);hideSlide(s);toast(x.title+" moved down for now",async()=>{await genLater(Object.assign({type:"movie"},x),false);sugLoad()})}},{i:"…",l:"Why not",f:(b,s)=>reasonSheet(x,()=>hideSlide(s))}]}}
 function cardWL(w){const on=(w.providers||[]).filter(p=>p.mine&&p.kind=="flatrate").map(p=>p.name);const nx=w.next_air?"Next: "+(w.next_ep?w.next_ep+" · ":"")+fdate(w.next_air):"";
  return{tid:w.id,ttype:w.type,poster:w.poster,title:w.title,star:w.rating||"",sub:[w.type=="tv"?"Show":"Movie",w.year,nx].filter(Boolean).join(" · "),chips:on.length?on:(w.providers||[]).filter(p=>p.kind=="flatrate").map(p=>p.name).slice(0,4),desc:w.overview,open:()=>wishDetail(w),
  actions:[{i:"▶",l:"Play",f:()=>tvSheet(w)},aInfo(()=>wishDetail(w)),{i:"✕",l:"Remove",f:async(b,s)=>{bloop();await fetch("/api/wish",{method:"POST",body:JSON.stringify({action:"remove",id:w.id,type:w.type})});hideSlide(s);toast("Removed "+w.title)}}]}}
@@ -547,7 +582,7 @@ function reasonSheet(x,done){const old=document.querySelector(".sheet");if(old)o
  d.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{bloop();b.classList.toggle("on")});
  d.querySelectorAll("[data-r]").forEach(b=>b.onclick=async()=>{const reason=b.dataset.r,note=$("#rnote").value,tags=[...d.querySelectorAll("[data-t].on")].map(e=>e.dataset.t);d.remove();bloop();
   await fetch("/api/suggest/feedback",{method:"POST",body:JSON.stringify({id:x.id,title:x.title,reason,note,tags,genres:x.genres||[],type:tv?"tv":"movie"})});
-  if(reason=="want"){await genAdd(Object.assign({type:tv?"tv":"movie"},x));dong();if(done)done();else reload();toast("Added "+x.title+(tv?" to Watching":" to wishlist"));return}
+  if(reason=="want"){await genAdd(Object.assign({type:tv?"tv":"movie"},x));dong();if(done)done();else reload();toast("Added "+x.title+" to To Watch");return}
   await fetch(api+"dismiss",{method:"POST",body:JSON.stringify({id:x.id,type:x.type})});if(done)done();else reload();
   toast("Removed "+x.title,async()=>{await fetch(api+"restore",{method:"POST",body:JSON.stringify({id:x.id,type:x.type})});reload()})})}
 async function sugDetail(x){immOff();const m=$("#main");sdetail=true;let w=Object.assign({},x);

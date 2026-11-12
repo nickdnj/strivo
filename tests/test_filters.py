@@ -116,3 +116,18 @@ def test_fresh_rebuild_drops_what_no_longer_fits(data, tmdb):
     core.settings_save({"discover": {"series": {"min_votes": 5000}}})
     picks.build_all(core, "series", fresh=True)
     assert data.read("show_suggestions.json")["items"] == []
+
+
+def test_thumbs_up_finds_more_like_it(data, tmdb):
+    core = _core(data, tmdb)
+    core.save_feedback(555, "Loved Movie", "liked", "")
+    core.save_feedback(556, "Someday Movie", "want", "")
+    core.save_feedback(557, "Nope Movie", "no", "")
+    core.save_feedback(777, "Loved Show", "liked", "", kind="tv")
+    assert [(i, w) for i, w, _ in picks.thumbs_up(core, "movie")] == [("556", 1.5), ("555", 3.0)]   # newest first
+    assert picks.thumbs_up(core, "tv") == [("777", 3.0, "you liked Loved Show")]
+    picks.suggest_build(core)
+    picks.shows_build(core)
+    asked = {p for p, _, _ in tmdb.calls}
+    assert {"/movie/555/recommendations", "/movie/556/recommendations", "/tv/777/recommendations"} <= asked
+    assert "/movie/557/recommendations" not in asked

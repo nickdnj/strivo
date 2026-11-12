@@ -72,6 +72,23 @@ def _keyword_ids(core, kws):
     return ids
 
 
+THUMB_WEIGHT = {"liked": 3.0, "want": 1.5}
+
+
+def thumbs_up(core, typ, limit=40):
+    """(TMDB id, weight, why) for titles given a thumbs up: seen and liked counts most, "add to To Watch" a bit less.
+    Newest first, so the latest thumbs steer the picks."""
+    out = []
+    for k, fb in core.feedback().items():
+        is_tv = k.startswith("tv:")
+        if is_tv != (typ == "tv") or fb.get("reason") not in THUMB_WEIGHT:
+            continue
+        why = ("you liked " if fb["reason"] == "liked" else "like ") + (fb.get("title") or "one you picked")
+        out.append((fb.get("at", 0), k.split(":")[-1], THUMB_WEIGHT[fb["reason"]], why))
+    out.sort(reverse=True)
+    return [(i, w, why) for _, i, w, why in out[:limit]]
+
+
 def _all_seen(core):
     return core.seen_names()
 
@@ -160,13 +177,12 @@ def suggest_build(core, f=None, fname="suggestions.json"):
                 break
             for x in res:
                 add(x, 5.0, reason, floor)
-    for mid, fb in core.feedback().items():
-        if fb.get("reason") == "liked" and not mid.startswith("tv:"):
-            try:
-                for x in core.tmdb.get("/movie/%s/recommendations" % mid).get("results", []):
-                    add(x, 3.0, "you liked " + fb.get("title", "a movie"))
-            except Exception:
-                pass
+    for mid, w, why in thumbs_up(core, "movie"):
+        try:
+            for x in core.tmdb.get("/movie/%s/recommendations" % mid).get("results", []):
+                add(x, w, why)
+        except Exception:
+            pass
     gscore = defaultdict(float)
     for w, (typ, name) in taste_seeds(d):
         try:
@@ -292,6 +308,12 @@ def shows_build(core, f=None, fname="show_suggestions.json", fresh=False):
                 break
             for x in res:
                 add(x, 4.0, reason, floor)
+    for sid, w, why in thumbs_up(core, "tv"):
+        try:
+            for x in core.tmdb.get("/tv/%s/recommendations" % sid).get("results", []):
+                add(x, w * 2, why)
+        except Exception:
+            pass
     for w, (typ, name) in taste_seeds(d):
         if typ != "tv":
             continue
